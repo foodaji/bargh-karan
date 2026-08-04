@@ -4,8 +4,8 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
 <title>برق‌فاکتور</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vazirmatn/33.0.3/Vazirmatn-font-face.css">
-<style>
+<link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/vazirmatn/33.0.3/Vazirmatn-font-face.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vazirmatn/33.0.3/Vazirmatn-font-face.css"></noscript>
 <style>
   :root{
     --bg:#F5F8FF; --card:#FFFFFF; --blue:#155EEF; --blue-dark:#0B3FAE; --blue-soft:#E8F0FF;
@@ -347,14 +347,13 @@
     .invoice-footer{ flex-direction:row !important; align-items:flex-end !important; }
   }
 </style>
-</style>
 </head>
 <body>
 <div id="root"><div class="loader-wrap"><div class="loader"></div></div></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
 <script src="config.js"></script>
 <script>
 /* ==================================================================
@@ -463,16 +462,22 @@ function attachLocalStamps(users){
 
 // Read the whole shared record from JSONBin ("?meta=false" returns the
 // raw JSON you stored, without the id/createdAt wrapper).
+function fetchWithTimeout(url, options={}, timeoutMs=8000){
+  const controller = new AbortController();
+  const timer = setTimeout(()=>controller.abort(), timeoutMs);
+  return fetch(url, { ...options, signal: controller.signal }).finally(()=>clearTimeout(timer));
+}
+
 async function loadState(){
   try{
-    const res = await fetch(jsonBinUrl("/latest?meta=false"), { headers: jsonBinHeaders(), cache:"no-store" });
+    const res = await fetchWithTimeout(jsonBinUrl("/latest?meta=false"), { headers: jsonBinHeaders(), cache:"no-store" });
     if(!res.ok) throw new Error("HTTP " + res.status);
     const data = await res.json();
     storageIsLive = true;
     saveLocalCache(data);
     return data;
   }catch(e){
-    console.warn("خواندن از JSONBin.io ناموفق بود؛ از آخرین نسخه‌ی محلی استفاده می‌شود.", e);
+    console.warn("خواندن از JSONBin.io ناموفق یا کند بود؛ از آخرین نسخه‌ی محلی استفاده می‌شود.", e);
     storageIsLive = false;
     return loadLocalCache();
   }
@@ -483,7 +488,7 @@ async function loadState(){
 // together, so there is no partial-update API call to make).
 async function saveState(state){
   try{
-    const res = await fetch(jsonBinUrl(""), {
+    const res = await fetchWithTimeout(jsonBinUrl(""), {
       method:"PUT",
       headers: jsonBinHeaders({ "Content-Type":"application/json" }),
       body: JSON.stringify(state),
