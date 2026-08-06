@@ -1,0 +1,1916 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+<title>برق‌فاکتور</title>
+<link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/vazirmatn/33.0.3/Vazirmatn-font-face.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vazirmatn/33.0.3/Vazirmatn-font-face.css"></noscript>
+<style>
+  :root{
+    --bg:#F5F8FF; --card:#FFFFFF; --blue:#155EEF; --blue-dark:#0B3FAE; --blue-soft:#E8F0FF;
+    --orange:#FF7A29; --orange-soft:#FFEEE0; --ink:#101828; --gray:#667085; --border:#E4E9F5;
+    --radius:16px; --shadow:0 8px 24px -8px rgba(21,94,239,0.15);
+  }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body{ margin:0; padding:0; overflow-x:hidden; }
+  body{ font-family:'Vazirmatn', sans-serif; color:var(--ink); background:var(--bg); line-height:1.6; }
+  button, input, select, textarea{ font-family:inherit; font-size:16px; }
+  a{ color:inherit; }
+  .muted{ color:var(--gray); }
+  .hidden{ display:none !important; }
+
+  .loader-wrap{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; min-height:100vh; }
+  .loader-electric{ position:relative; width:64px; height:64px; display:flex; align-items:center; justify-content:center; }
+  .loader-electric::before{ content:""; position:absolute; inset:0; border-radius:50%; border:4px solid var(--blue-soft); border-top-color:var(--orange); border-right-color:var(--orange); animation:spin .9s linear infinite; }
+  .loader-electric .bolt{ font-size:26px; animation:boltPulse 1s ease-in-out infinite; filter:drop-shadow(0 0 6px rgba(255,122,41,.55)); }
+  .loader-caption{ font-size:13px; color:var(--gray); }
+  @keyframes boltPulse{ 0%,100%{ transform:scale(1); opacity:1; } 50%{ transform:scale(1.18); opacity:.7; } }
+
+  .saving-indicator{ position:fixed; top:64px; right:50%; transform:translateX(50%); background:var(--ink); color:#fff; padding:9px 18px; border-radius:999px; font-size:13px; z-index:998; display:flex; align-items:center; gap:8px; box-shadow:0 10px 24px rgba(0,0,0,.25); }
+  .bolt-spin{ display:inline-block; animation:boltPulse .8s ease-in-out infinite; color:var(--orange); }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+
+  /* Buttons */
+  .btn{ display:inline-flex; align-items:center; gap:6px; justify-content:center; border:none; cursor:pointer; border-radius:12px; padding:10px 16px; font-size:14px; font-weight:600; transition:transform .15s ease, box-shadow .15s ease, background .15s ease; white-space:nowrap; }
+  .btn:active{ transform:scale(.97); }
+  .btn-primary{ background:linear-gradient(135deg, var(--blue), var(--blue-dark)); color:#fff; box-shadow:var(--shadow); }
+  .btn-primary:hover{ box-shadow:0 10px 28px -6px rgba(21,94,239,.35); }
+  .btn-secondary{ background:var(--blue-soft); color:var(--blue-dark); }
+  .btn-secondary:hover{ background:#DCE9FF; }
+  .btn-ghost{ background:#fff; color:var(--blue-dark); border:1.5px solid var(--border); }
+  .btn-text{ background:transparent; color:var(--gray); padding:6px 8px; }
+  .btn-text:hover{ color:var(--ink); }
+  .btn-lg{ padding:13px 22px; font-size:15px; border-radius:14px; }
+  .btn-block{ width:100%; }
+  .btn-icon{ background:var(--blue-soft); color:var(--blue-dark); width:36px; height:36px; padding:0; border-radius:10px; flex-shrink:0; }
+  .btn-icon.danger{ background:#FFE9E4; color:#D64545; }
+
+  .toast{ position:fixed; top:14px; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff; padding:10px 18px; border-radius:12px; font-size:13px; z-index:999; box-shadow:0 10px 24px rgba(0,0,0,.2); max-width:92vw; text-align:center; }
+
+  /* Landing */
+  .landing{ max-width:1180px; margin:0 auto; padding:0 20px 40px; }
+  .landing-nav{ display:flex; align-items:center; justify-content:space-between; padding:20px 0; flex-wrap:wrap; gap:10px; }
+  .brand{ display:flex; align-items:center; gap:8px; font-weight:800; font-size:18px; color:var(--blue-dark); }
+  .brand.center{ justify-content:center; margin-bottom:6px; }
+  .brand-badge{ display:flex; align-items:center; justify-content:center; width:34px; height:34px; border-radius:10px; background:linear-gradient(135deg, var(--orange), #FF9C5C); color:#fff; font-size:16px; flex-shrink:0; }
+
+  .hero{ display:grid; grid-template-columns:1.1fr .9fr; gap:32px; align-items:center; padding:24px 0 50px; }
+  .eyebrow{ display:inline-flex; align-items:center; gap:6px; background:var(--orange-soft); color:#C55A15; font-weight:700; font-size:13px; padding:6px 12px; border-radius:999px; margin-bottom:16px; }
+  .hero h1{ font-size:36px; font-weight:800; line-height:1.35; margin:0 0 16px; }
+  .hero p{ color:var(--gray); font-size:15px; max-width:520px; margin:0 0 24px; }
+  .hero-actions{ margin-bottom:24px; }
+  .hero-stats{ display:flex; gap:24px; flex-wrap:wrap; }
+  .hero-stats div{ display:flex; flex-direction:column; }
+  .hero-stats strong{ font-size:17px; color:var(--blue-dark); }
+  .hero-stats span{ font-size:12px; color:var(--gray); }
+
+  .hero-visual{ position:relative; margin-top:30px; }
+  .mock-invoice{ background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); padding:20px; border:1px solid var(--border); }
+  .mock-invoice-row{ display:grid; grid-template-columns:2fr 1fr 1fr; font-size:12px; padding:8px 0; border-bottom:1px dashed var(--border); }
+  .mock-invoice-row.head{ color:var(--gray); font-weight:700; }
+  .mock-invoice-total{ display:flex; justify-content:space-between; padding-top:14px; font-weight:800; color:var(--blue-dark); font-size:14px; }
+
+  .gauge{ position:absolute; top:-18px; left:0; background:var(--ink); color:#fff; border-radius:16px; padding:12px 16px; display:flex; flex-direction:column; align-items:flex-start; gap:2px; box-shadow:0 16px 30px -10px rgba(16,24,40,.4); max-width:calc(100% - 20px); }
+  .gauge.inline{ position:static; width:100%; align-items:center; text-align:center; max-width:none; }
+  .gauge-icon{ color:var(--orange); font-size:18px; }
+  .gauge.pulse .gauge-icon{ animation:pulse 1.6s ease-in-out infinite; display:inline-block; }
+  @keyframes pulse{ 0%,100%{ opacity:1; transform:scale(1);} 50%{ opacity:.6; transform:scale(1.15);} }
+  .gauge-label{ font-size:11px; opacity:.7; }
+  .gauge-value{ font-size:17px; font-weight:800; word-break:break-word; }
+
+  .features{ padding:16px 0 36px; text-align:center; }
+  .features h2{ font-size:24px; margin-bottom:22px; }
+  .feature-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
+  .feature-card{ background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:20px; text-align:right; }
+  .feature-icon{ width:38px; height:38px; border-radius:12px; background:var(--blue-soft); color:var(--blue-dark); display:flex; align-items:center; justify-content:center; margin-bottom:12px; font-size:17px; }
+  .feature-card h3{ font-size:14px; margin:0 0 6px; }
+  .feature-card p{ font-size:13px; color:var(--gray); margin:0; }
+
+  .contact{ background:var(--card); border-radius:var(--radius); border:1px solid var(--border); padding:26px 22px; text-align:center; margin-bottom:24px; }
+  .contact-form{ display:flex; flex-direction:column; gap:12px; max-width:420px; margin:16px auto 0; }
+  .contact-form input, .contact-form textarea{ border:1.5px solid var(--border); border-radius:12px; padding:11px 14px; font-size:14px; resize:none; width:100%; }
+  .landing-footer{ text-align:center; color:var(--gray); font-size:12px; padding-top:8px; }
+
+  /* Auth */
+  .auth-screen{ min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; position:relative; }
+  .back-btn{ position:absolute; top:16px; right:16px; }
+  .auth-card{ width:100%; max-width:380px; background:var(--card); border-radius:20px; box-shadow:var(--shadow); border:1px solid var(--border); padding:26px 22px; }
+  .auth-card h2{ text-align:center; margin:6px 0 4px; font-size:19px; }
+  .auth-card p.muted{ text-align:center; margin-bottom:18px; font-size:13px; }
+  .auth-hint{ text-align:center; font-size:11px; color:var(--gray); margin-top:14px; background:var(--blue-soft); padding:8px; border-radius:10px; }
+  .field{ display:flex; align-items:center; gap:8px; border:1.5px solid var(--border); border-radius:12px; padding:11px 14px; margin-bottom:12px; color:var(--gray); }
+  .field span.ic{ font-size:15px; flex-shrink:0; }
+  .field input, .field select{ border:none; outline:none; background:transparent; flex:1; font-size:14px; color:var(--ink); min-width:0; }
+  .checkbox-row{ display:flex; align-items:center; gap:8px; font-size:13px; color:var(--gray); margin-bottom:18px; }
+  .checkbox-row input{ width:16px; height:16px; }
+  .choice-grid{ display:flex; flex-direction:column; gap:10px; }
+
+  /* Shell */
+  .shell{ display:grid; grid-template-columns:250px 1fr; min-height:100vh; }
+  .sidebar{ background:var(--card); border-left:1px solid var(--border); padding:20px 16px; display:flex; flex-direction:column; gap:14px; }
+  .sidebar-cta{ margin-top:4px; }
+  .sidebar-nav{ display:flex; flex-direction:column; gap:4px; margin-top:4px; }
+  .nav-item{ display:flex; align-items:center; gap:10px; background:transparent; border:none; text-align:right; padding:12px; border-radius:12px; cursor:pointer; font-size:14px; color:var(--gray); font-weight:600; width:100%; }
+  .nav-item:hover{ background:var(--blue-soft); color:var(--blue-dark); }
+  .nav-item.active{ background:var(--blue-soft); color:var(--blue-dark); }
+  .nav-item.logout{ margin-top:auto; color:#D64545; }
+  .nav-item.logout:hover{ background:#FFE9E4; }
+
+  .shell-main{ display:flex; flex-direction:column; min-width:0; }
+  .topbar{ display:flex; align-items:center; justify-content:space-between; padding:16px 24px; background:var(--card); border-bottom:1px solid var(--border); gap:10px; }
+  .topbar-greeting{ font-size:14px; color:var(--gray); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1; }
+  .avatar{ width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg,var(--blue),var(--blue-dark)); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; flex-shrink:0; }
+  .content{ padding:24px; flex:1; min-width:0; }
+  .only-mobile{ display:none; }
+  .backdrop{ display:none; }
+
+  /* Dashboard */
+  .dashboard h1{ margin:0 0 4px; font-size:22px; }
+  .dash-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-top:22px; }
+  .dash-card{ background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:20px; text-align:right; cursor:pointer; transition:transform .15s ease, box-shadow .15s ease; }
+  .dash-card:hover{ transform:translateY(-3px); box-shadow:var(--shadow); }
+  .dash-card-icon{ width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; margin-bottom:12px; font-size:19px; }
+  .tone-orange .dash-card-icon{ background:var(--orange-soft); color:var(--orange); }
+  .tone-blue .dash-card-icon{ background:var(--blue-soft); color:var(--blue-dark); }
+  .dash-card-title{ font-weight:700; font-size:14px; margin-bottom:4px; }
+  .dash-card-desc{ font-size:12px; color:var(--gray); }
+
+  /* New invoice */
+  .ni-header{ display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:16px; gap:10px; flex-wrap:wrap; }
+  .ni-header h1{ margin:0 0 4px; font-size:20px; }
+  .project-field{ max-width:420px; margin-bottom:16px; }
+  .search-row{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:14px; }
+  .search-field{ max-width:280px; flex:1; min-width:180px; }
+  .cat-chips{ display:flex; gap:8px; flex-wrap:wrap; }
+  .chip{ border:1.5px solid var(--border); background:var(--card); padding:7px 14px; border-radius:999px; font-size:13px; cursor:pointer; color:var(--gray); font-weight:600; }
+  .chip.active{ background:var(--blue); border-color:var(--blue); color:#fff; }
+
+  .ni-body{ display:grid; grid-template-columns:1fr 300px; gap:20px; align-items:flex-start; }
+  .cat-group{ margin-bottom:18px; }
+  .cat-group-title{ font-weight:700; font-size:14px; color:var(--blue-dark); margin-bottom:8px; }
+  .item-list{ display:flex; flex-direction:column; gap:8px; }
+  .item-row{ display:grid; grid-template-columns:1fr 140px 100px; align-items:center; gap:10px; background:var(--card); border:1.5px solid var(--border); border-radius:14px; padding:12px 14px; }
+  .item-row.active{ border-color:var(--blue); background:var(--blue-soft); }
+  .item-name{ font-weight:600; font-size:14px; }
+  .item-meta{ font-size:12px; color:var(--gray); }
+  .qty-control{ display:flex; align-items:center; gap:4px; justify-content:center; }
+  .qty-btn{ background:transparent; border:none; color:var(--blue); cursor:pointer; font-size:20px; line-height:1; padding:4px; }
+  .qty-input{ width:48px; text-align:center; border:1.5px solid var(--border); border-radius:8px; padding:7px 2px; font-size:14px; }
+  .item-line-total{ text-align:left; font-weight:700; font-size:13px; color:var(--blue-dark); }
+  .empty-state{ text-align:center; color:var(--gray); padding:26px; background:var(--card); border-radius:var(--radius); border:1px dashed var(--border); }
+  .empty-state.big{ display:flex; flex-direction:column; align-items:center; gap:10px; padding:44px 20px; }
+
+  .summary-column{ position:sticky; top:16px; }
+  .summary-card{ background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:18px; display:flex; flex-direction:column; gap:14px; }
+  .summary-line{ display:flex; justify-content:space-between; font-size:13px; color:var(--gray); }
+  .summary-line strong{ color:var(--ink); }
+
+  /* Custom items */
+  .custom-section{ background:var(--card); border:1.5px dashed var(--border); border-radius:var(--radius); padding:16px; margin-top:6px; }
+  .custom-section-title{ font-weight:700; font-size:14px; margin-bottom:10px; color:var(--blue-dark); }
+  .custom-add-row{ display:grid; grid-template-columns:2fr 1fr 1fr 1fr auto; gap:8px; margin-bottom:10px; }
+  .custom-add-row input{ border:1.5px solid var(--border); border-radius:10px; padding:9px 10px; font-size:13px; width:100%; }
+  .custom-item-row{ display:grid; grid-template-columns:1fr 90px 110px 110px auto; align-items:center; gap:8px; background:var(--blue-soft); border-radius:10px; padding:8px 10px; margin-bottom:6px; font-size:13px; }
+  .custom-item-row input{ border:1px solid var(--border); border-radius:8px; padding:6px 8px; font-size:13px; width:100%; }
+
+  /* Discount */
+  .discount-box{ display:flex; gap:8px; align-items:center; }
+  .discount-box select{ border:1.5px solid var(--border); border-radius:10px; padding:9px 8px; font-size:13px; }
+  .discount-box input{ border:1.5px solid var(--border); border-radius:10px; padding:9px 10px; font-size:13px; flex:1; min-width:0; }
+
+  /* Invoices list */
+  .list-header{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; flex-wrap:wrap; gap:10px; }
+  .list-header h1{ margin:0; font-size:20px; }
+  .invoice-cards{ display:flex; flex-direction:column; gap:10px; margin-top:14px; }
+  .invoice-card{ display:flex; align-items:center; gap:12px; background:var(--card); border:1px solid var(--border); border-radius:14px; padding:14px; flex-wrap:wrap; }
+  .invoice-card-main{ cursor:pointer; flex:1; min-width:140px; }
+  .invoice-card-title{ font-weight:700; font-size:14px; }
+  .invoice-card-meta{ font-size:12px; color:var(--gray); }
+  .invoice-card-total{ font-weight:800; color:var(--blue-dark); font-size:13px; white-space:nowrap; }
+  .invoice-card-actions{ display:flex; gap:6px; flex-wrap:wrap; }
+
+  /* Account */
+  .account-page h1{ font-size:20px; margin-bottom:14px; }
+  .account-form{ max-width:420px; display:flex; flex-direction:column; }
+  .stamp-section{ max-width:420px; margin-top:24px; padding-top:20px; border-top:1px solid var(--border); }
+  .stamp-section h2{ font-size:16px; margin:0 0 6px; }
+  .stamp-section p{ font-size:13px; margin:0 0 14px; }
+  .stamp-sample-box{ display:flex; gap:12px; align-items:center; background:var(--bg); border:1px dashed var(--border); border-radius:12px; padding:10px; margin-bottom:14px; }
+  .stamp-sample-img{ width:72px; height:72px; object-fit:contain; border-radius:8px; background:#fff; flex-shrink:0; border:1px solid var(--border); }
+  .stamp-sample-text p{ margin:2px 0 0; font-size:12px; }
+  .stamp-preview-box{ display:flex; align-items:center; gap:12px; background:var(--blue-soft); border-radius:12px; padding:10px 14px; margin-bottom:12px; }
+  .stamp-preview-img{ max-width:100px; max-height:70px; object-fit:contain; background:repeating-conic-gradient(#f0f0f0 0% 25%, #fff 0% 50%) 50% / 12px 12px; border-radius:6px; }
+  .stamp-upload-btn{ cursor:pointer; display:inline-flex; }
+
+  /* Preview */
+  .preview-toolbar{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; flex-wrap:wrap; gap:10px; }
+  .toolbar-actions{ display:flex; gap:8px; flex-wrap:wrap; position:relative; }
+  .invoice-paper{ background:var(--card); border-radius:18px; border:1px solid var(--border); padding:28px; max-width:760px; margin:0 auto; box-shadow:var(--shadow); }
+  .invoice-head{ display:flex; justify-content:space-between; align-items:center; padding-bottom:16px; border-bottom:2px solid var(--border); margin-bottom:16px; flex-wrap:wrap; gap:10px; }
+  .invoice-meta{ font-size:13px; color:var(--gray); text-align:left; }
+  .invoice-meta div{ margin-bottom:2px; }
+  .invoice-parties{ display:flex; justify-content:space-between; margin-bottom:20px; flex-wrap:wrap; gap:14px; }
+  .party-label{ font-size:11px; color:var(--gray); margin-bottom:4px; }
+  .party-value{ font-weight:700; font-size:14px; }
+  .table-scroll{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
+  .invoice-table{ width:100%; border-collapse:collapse; font-size:13px; min-width:520px; }
+  .invoice-table th{ background:var(--blue-soft); color:var(--blue-dark); padding:10px; text-align:center; font-weight:700; white-space:nowrap; }
+  .invoice-table td{ padding:10px; text-align:center; border-bottom:1px solid var(--border); }
+  .invoice-totals{ margin-top:6px; }
+  .invoice-subtotal-row, .invoice-discount-row{ display:flex; justify-content:space-between; padding:6px 4px; font-size:13px; color:var(--gray); }
+  .invoice-discount-row{ color:#C55A15; }
+  .invoice-total-row{ display:flex; justify-content:space-between; padding:14px 4px; font-size:17px; font-weight:800; color:var(--blue-dark); border-top:2px solid var(--border); margin-top:4px; }
+  .invoice-words-row{ font-size:12px; color:var(--gray); padding:0 4px 6px; }
+  .invoice-footer{ display:flex; justify-content:space-between; align-items:flex-end; margin-top:26px; flex-wrap:wrap; gap:20px; }
+  .sign-label{ font-size:12px; color:var(--gray); margin-bottom:8px; }
+  .sign-box{ display:flex; flex-direction:column; align-items:flex-start; }
+  .stamp-img{ max-width:130px; max-height:80px; object-fit:contain; margin-bottom:8px; opacity:.92; }
+  .sign-line{ width:140px; border-top:1.5px dashed var(--border); margin-top:26px; }
+  .qr-box{ text-align:center; }
+  .qr-box canvas{ width:130px; height:130px; border:1px solid var(--border); border-radius:8px; background:#fff; }
+  .qr-label{ font-size:10px; color:var(--gray); margin-top:6px; max-width:140px; }
+
+  .share-wrap{ position:relative; }
+  .share-menu{ position:absolute; top:calc(100% + 6px); left:0; background:var(--card); border:1px solid var(--border); border-radius:14px; box-shadow:0 12px 30px -8px rgba(16,24,40,.25); padding:8px; display:flex; flex-direction:column; gap:2px; z-index:60; min-width:200px; }
+  .share-menu button{ display:flex; align-items:center; gap:10px; background:transparent; border:none; text-align:right; padding:10px 12px; border-radius:10px; cursor:pointer; font-size:13px; font-weight:600; color:var(--ink); width:100%; }
+  .share-menu button:hover{ background:var(--blue-soft); }
+  .share-menu .divider{ height:1px; background:var(--border); margin:4px 0; }
+
+  /* Confirm modal */
+  .modal-overlay{ position:fixed; inset:0; background:rgba(16,24,40,.5); z-index:300; display:flex; align-items:center; justify-content:center; padding:20px; }
+  .modal-card{ background:var(--card); border-radius:18px; padding:24px; max-width:340px; width:100%; box-shadow:0 24px 60px rgba(16,24,40,.35); text-align:center; }
+  .modal-message{ font-size:14px; margin-bottom:20px; line-height:1.8; color:var(--ink); }
+  .modal-actions{ display:flex; gap:10px; justify-content:center; }
+  .modal-actions .btn{ flex:1; }
+
+  /* Admin */
+  .admin-page h1{ font-size:20px; margin-bottom:14px; }
+  .admin-tabs{ display:flex; gap:8px; margin-bottom:18px; flex-wrap:wrap; }
+  .tab{ display:flex; align-items:center; gap:6px; padding:9px 16px; border-radius:999px; border:1.5px solid var(--border); background:var(--card); color:var(--gray); font-weight:600; font-size:13px; cursor:pointer; }
+  .tab.active{ background:var(--blue); border-color:var(--blue); color:#fff; }
+
+  .report-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+  .stat-card{ background:var(--card); border:1px solid var(--border); border-radius:14px; padding:16px; display:flex; flex-direction:column; gap:8px; }
+  .stat-card span{ font-size:12px; color:var(--gray); }
+  .stat-card strong{ font-size:19px; color:var(--blue-dark); word-break:break-word; }
+  .stat-card.wide{ grid-column:span 4; }
+  .top-list{ list-style:none; padding:0; margin:6px 0 0; display:flex; flex-direction:column; gap:6px; }
+  .top-list li{ display:flex; justify-content:space-between; font-size:13px; border-bottom:1px dashed var(--border); padding-bottom:6px; gap:10px; }
+
+  .add-item-form{ display:grid; grid-template-columns:2fr 1fr 1fr 1fr auto; gap:8px; margin-bottom:18px; }
+  .add-item-form input, .add-item-form select{ border:1.5px solid var(--border); border-radius:10px; padding:9px 12px; font-size:13px; width:100%; }
+  .pricelist-table{ display:flex; flex-direction:column; gap:6px; }
+  .pl-row{ display:grid; grid-template-columns:2fr 1fr 1fr 1fr 60px 40px; gap:8px; align-items:center; background:var(--card); border:1px solid var(--border); border-radius:10px; padding:8px 10px; }
+  .pl-row.pl-head{ background:transparent; border:none; font-size:12px; color:var(--gray); font-weight:700; }
+  .pl-row.inactive{ opacity:.55; }
+  .pl-row input, .pl-row select{ border:1px solid var(--border); border-radius:8px; padding:6px 8px; font-size:13px; width:100%; }
+  .pl-cell{ display:contents; }
+
+  .switch{ position:relative; display:inline-block; width:38px; height:22px; flex-shrink:0; }
+  .switch input{ opacity:0; width:0; height:0; position:absolute; }
+  .slider{ position:absolute; inset:0; background:#ccc; border-radius:999px; transition:.2s; cursor:pointer; }
+  .slider:before{ content:""; position:absolute; height:16px; width:16px; left:3px; bottom:3px; background:#fff; border-radius:50%; transition:.2s; }
+  .switch input:checked + .slider{ background:var(--blue); }
+  .switch input:checked + .slider:before{ transform:translateX(-16px); }
+
+  .user-table{ display:flex; flex-direction:column; gap:6px; }
+  .user-row{ display:grid; grid-template-columns:1.4fr 1.2fr 1fr 1fr 90px; gap:8px; align-items:center; background:var(--card); border:1px solid var(--border); border-radius:10px; padding:10px 12px; font-size:13px; }
+  .user-row.user-head{ background:transparent; border:none; color:var(--gray); font-weight:700; font-size:12px; }
+  .status-on{ color:#1B9C5E; font-weight:700; }
+  .status-off{ color:#D64545; font-weight:700; }
+  .user-actions{ display:flex; gap:6px; }
+  .user-cell{ display:contents; }
+
+  .message-list{ display:flex; flex-direction:column; gap:10px; }
+  .message-card{ background:var(--card); border:1px solid var(--border); border-radius:12px; padding:14px; }
+  .message-card-head{ display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:8px; flex-wrap:wrap; font-size:13px; }
+  .message-card-actions{ display:flex; align-items:center; gap:8px; }
+  .message-card-body{ font-size:13px; color:var(--ink); line-height:1.8; white-space:pre-wrap; }
+
+  /* ============================= Responsive ============================= */
+  @media (max-width:980px){
+    .hero{ grid-template-columns:1fr; }
+    .feature-grid{ grid-template-columns:repeat(2,1fr); }
+    .dash-grid{ grid-template-columns:repeat(2,1fr); }
+    .ni-body{ grid-template-columns:1fr; }
+    .summary-column{ position:static; }
+    .report-grid{ grid-template-columns:repeat(2,1fr); }
+    .stat-card.wide{ grid-column:span 2; }
+    .shell{ grid-template-columns:1fr; }
+    .sidebar{ position:fixed; top:0; right:0; bottom:0; width:78%; max-width:290px; z-index:70; transform:translateX(100%); transition:transform .22s ease; box-shadow:-6px 0 24px rgba(16,24,40,.15); }
+    .sidebar-open .sidebar{ transform:translateX(0); }
+    .sidebar-open .backdrop{ display:block; position:fixed; inset:0; background:rgba(16,24,40,.45); z-index:60; }
+    .only-mobile{ display:flex; }
+  }
+  @media (max-width:640px){
+    .landing{ padding:0 16px 30px; }
+    .hero h1{ font-size:26px; }
+    .hero p{ font-size:14px; }
+    .feature-grid{ grid-template-columns:1fr; }
+    .dash-grid{ grid-template-columns:1fr; }
+    .report-grid{ grid-template-columns:1fr; }
+    .stat-card.wide{ grid-column:span 1; }
+    .content{ padding:14px; }
+    .topbar{ padding:12px 14px; }
+    .topbar-greeting{ font-size:12px; max-width:50vw; }
+
+    .item-row{ grid-template-columns:1fr; text-align:right; gap:10px; }
+    .item-row .qty-control{ justify-content:flex-start; }
+    .item-line-total{ text-align:right; font-size:14px; }
+    .custom-add-row{ grid-template-columns:1fr; }
+    .custom-item-row{ grid-template-columns:1fr 1fr; }
+
+    .add-item-form{ grid-template-columns:1fr; }
+    .auth-card{ padding:22px 16px; }
+    .invoice-paper{ padding:16px; }
+    .invoice-table th, .invoice-table td{ padding:8px 6px; font-size:12px; }
+    .invoice-head{ flex-direction:column; align-items:flex-start; }
+    .invoice-meta{ text-align:right; }
+    .invoice-footer{ flex-direction:column; align-items:flex-start; }
+
+    /* Card-style stacking for admin/price/user tables */
+    .pl-row, .user-row{ display:flex; flex-direction:column; gap:10px; padding:12px; align-items:stretch; }
+    .pl-row.pl-head, .user-row.user-head{ display:none; }
+    .pl-cell, .user-cell{ display:flex; justify-content:space-between; align-items:center; gap:10px; }
+    .pl-cell::before, .user-cell::before{ content:attr(data-label); font-size:11px; color:var(--gray); font-weight:700; flex-shrink:0; }
+    .pl-cell input, .pl-cell select{ flex:1; text-align:left; max-width:60%; }
+    .user-cell{ font-size:13px; }
+
+    .share-menu{ left:auto; right:0; min-width:180px; }
+    .toolbar-actions{ width:100%; }
+    .toolbar-actions .btn{ flex:1; }
+  }
+  @page{ size:A4; margin:12mm; }
+  @media print{
+    .no-print, .sidebar, .topbar, .backdrop{ display:none !important; }
+    .shell{ display:block; }
+    .content{ padding:0; }
+    .invoice-paper{ box-shadow:none; border:none; max-width:100%; width:100%; padding:10mm !important; }
+    .table-scroll{ overflow:visible !important; }
+    .invoice-table{ min-width:0 !important; width:100% !important; font-size:12px !important; }
+    .invoice-table th, .invoice-table td{ padding:8px 6px !important; }
+    .invoice-head{ flex-direction:row !important; align-items:center !important; }
+    .invoice-parties{ flex-direction:row !important; }
+    .invoice-footer{ flex-direction:row !important; align-items:flex-end !important; }
+  }
+</style>
+</head>
+<body>
+<div id="root"><div class="loader-wrap"><div class="loader-electric"><span class="bolt">⚡</span></div><div class="loader-caption">در حال اتصال به پایگاه‌داده...</div></div></div>
+
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+<script src="config.js"></script>
+<script>
+/* ==================================================================
+   Data
+   ================================================================== */
+const CATEGORIES = ["سیم‌کشی","روشنایی","تابلو برق","ارت","آیفون","دوربین","شبکه","سایر"];
+
+const SECURITY_QUESTIONS = [
+  "نام اولین مدرسه شما چیست؟",
+  "نام حیوان خانگی شما چیست؟",
+  "کد ملی شما چیست؟",
+  "نام بهترین دوست دوران کودکی شما چیست؟",
+  "نام اولین استاد یا معلم فنی شما چیست؟",
+];
+const SECURITY_QUESTION_HINT = "این سؤال فقط برای بازیابی حساب در صورت فراموشی رمز عبور استفاده می‌شود.";
+
+/* ==================================================================
+   Helpers
+   ================================================================== */
+// قیمت‌ها همیشه در پایگاه‌داده به ریال ذخیره می‌شوند؛ نمایش بر اساس
+// تنظیمات کاربر (session.currencyDisplay: "rial" یا "toman") انجام می‌شود.
+function currentCurrencyUnit(){
+  return (State.session && State.session.currencyDisplay) || "rial";
+}
+function toman(n){
+  n = Number(n)||0;
+  if(currentCurrencyUnit()==="toman"){
+    return Math.round(n/10).toLocaleString("fa-IR") + " تومان";
+  }
+  return n.toLocaleString("fa-IR") + " ریال";
+}
+
+function threeDigitToWords(n){
+  const ones=["","یک","دو","سه","چهار","پنج","شش","هفت","هشت","نه"];
+  const teens=["ده","یازده","دوازده","سیزده","چهارده","پانزده","شانزده","هفده","هجده","نوزده"];
+  const tens=["","ده","بیست","سی","چهل","پنجاه","شصت","هفتاد","هشتاد","نود"];
+  const hundreds=["","صد","دویست","سیصد","چهارصد","پانصد","ششصد","هفتصد","هشتصد","نهصد"];
+  const parts=[];
+  const h=Math.floor(n/100), r=n%100;
+  if(h) parts.push(hundreds[h]);
+  if(r>=10 && r<20){ parts.push(teens[r-10]); }
+  else {
+    const t=Math.floor(r/10), o=r%10;
+    if(t) parts.push(tens[t]);
+    if(o) parts.push(ones[o]);
+  }
+  return parts.join(" و ");
+}
+function numberToPersianWords(num){
+  num = Math.round(Math.max(0, num));
+  if(num===0) return "صفر";
+  const scales=["","هزار","میلیون","میلیارد","تریلیون"];
+  const groups=[];
+  let n=num;
+  while(n>0){ groups.push(n%1000); n=Math.floor(n/1000); }
+  const parts=[];
+  for(let i=groups.length-1;i>=0;i--){
+    if(groups[i]===0) continue;
+    let word = threeDigitToWords(groups[i]);
+    if(scales[i]) word += " " + scales[i];
+    parts.push(word);
+  }
+  return parts.join(" و ");
+}
+function tomanToWords(n){
+  n = Number(n)||0;
+  if(currentCurrencyUnit()==="toman"){
+    return numberToPersianWords(Math.round(n/10)) + " تومان";
+  }
+  return numberToPersianWords(n) + " ریال";
+}
+const todayFa = () => new Intl.DateTimeFormat("fa-IR",{year:"numeric",month:"long",day:"numeric"}).format(new Date());
+const uid = (p="id") => p + "_" + Math.random().toString(36).slice(2,9);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+/* ==================================================================
+   Persistence — JSONBin.io only. Per project requirements, NOTHING is
+   cached in the browser (no localStorage/sessionStorage at all): every
+   read comes fresh from JSONBin, every write goes straight to JSONBin,
+   and the login session lives only in memory (State.session) — so
+   reloading the page always starts at the login screen again.
+   ================================================================== */
+let storageIsLive = true;   // true = last JSONBin read/write succeeded
+let lastSyncError = null;
+
+function jsonBinHeaders(extra={}){
+  // JSONBin accepts the key either as X-Master-Key (Master Key) or
+  // X-Access-Key (a scoped Access Key) — sending both is harmless and
+  // means this works regardless of which type of key was created.
+  return { "X-Master-Key": JSONBIN_CONFIG.apiKey, "X-Access-Key": JSONBIN_CONFIG.apiKey, ...extra };
+}
+function jsonBinUrl(suffix=""){
+  return `${JSONBIN_CONFIG.baseUrl}/${JSONBIN_CONFIG.binId}${suffix}`;
+}
+
+function fetchWithTimeout(url, options={}, timeoutMs=12000){
+  const controller = new AbortController();
+  const timer = setTimeout(()=>controller.abort(), timeoutMs);
+  return fetch(url, { ...options, signal: controller.signal }).finally(()=>clearTimeout(timer));
+}
+
+// Read the whole shared record from JSONBin ("?meta=false" returns the
+// raw JSON you stored, without the id/createdAt wrapper). No local
+// fallback on failure — the caller shows a clear connection error instead.
+async function loadState(){
+  try{
+    const res = await fetchWithTimeout(jsonBinUrl("/latest?meta=false"), { headers: jsonBinHeaders(), cache:"no-store" });
+    if(!res.ok){
+      let detail = "";
+      try{ const body = await res.json(); detail = body && body.message ? body.message : ""; }catch(e){}
+      throw new Error(`HTTP ${res.status}${detail ? " — " + detail : ""}`);
+    }
+    const data = await res.json();
+    storageIsLive = true;
+    lastSyncError = null;
+    return data;
+  }catch(e){
+    const reason = e.name === "AbortError" ? "اتصال بیش از حد طول کشید (Timeout)" : e.message;
+    console.warn("خواندن از JSONBin.io ناموفق بود.", e);
+    storageIsLive = false;
+    lastSyncError = reason;
+    return null;
+  }
+}
+
+// Overwrite the whole shared record on JSONBin (full replace — this app
+// always sends the complete users/priceList/invoices/contactMessages
+// together, so there is no partial-update API call to make).
+async function saveState(state){
+  try{
+    const res = await fetchWithTimeout(jsonBinUrl(""), {
+      method:"PUT",
+      headers: jsonBinHeaders({ "Content-Type":"application/json" }),
+      body: JSON.stringify(state),
+    });
+    if(!res.ok) throw new Error("HTTP " + res.status);
+    storageIsLive = true;
+    lastSyncError = null;
+    return true;
+  }catch(e){
+    const reason = e.name === "AbortError" ? "اتصال بیش از حد طول کشید (Timeout)" : e.message;
+    console.warn("ذخیره در JSONBin.io ناموفق بود.", e);
+    storageIsLive = false;
+    lastSyncError = reason;
+    return false;
+  }
+}
+
+/* ==================================================================
+   State
+   ================================================================== */
+const State = {
+  view:"landing",
+  authStage:"credentials", // credentials | names
+  authTemp:{phone:"",password:"",remember:true},
+  users:[],
+  session:null,
+  priceList:[],
+  invoices:[],
+  draft:null,
+  toast:null,
+  toastTimer:null,
+  saving:false, // true while a save request is in flight — drives the loading indicator
+  adminTab:"report",
+  sidebarOpen:false,
+  shareMenuOpen:false,
+  niQuery:"",
+  niCat:"همه",
+  invoicesQuery:"",
+  adminUsersQuery:"",
+  adminInvoicesQuery:"",
+  plForm:{name:"",unit:"",price:"",category:CATEGORIES[0]},
+  customForm:{name:"",unit:"",price:"",qty:""},
+  confirm:null, // {message, action, args}
+  contactMessages:[],
+  adminMessagesQuery:"",
+  publicInvoice:null, // set when viewing an invoice via the public QR link (no login)
+  publicOwner:null,
+};
+
+// Persists the full shared dataset and gives the user clear feedback:
+// a "saving…" indicator while in flight, then either a success
+// confirmation or a visible error — so it's always obvious whether the
+// data actually made it into the database.
+async function persist(successMessage){
+  State.saving = true;
+  render();
+  const ok = await saveState({
+    users: State.users,
+    priceList: State.priceList,
+    invoices: State.invoices,
+    contactMessages: State.contactMessages,
+  });
+  State.saving = false;
+  if(ok){
+    if(successMessage) notify(successMessage);
+  } else {
+    notify("⚠️ ذخیره‌سازی در پایگاه‌داده ناموفق بود" + (lastSyncError ? ` (${lastSyncError})` : "") + " — اتصال اینترنت را بررسی و دوباره تلاش کنید.");
+  }
+  render();
+  return ok;
+}
+
+function notify(msg){
+  State.toast = msg;
+  render();
+  clearTimeout(State.toastTimer);
+  State.toastTimer = setTimeout(()=>{ State.toast=null; render(); }, 2600);
+}
+
+function askConfirm(message, action, args=[]){
+  State.confirm = { message, action, args };
+  render();
+}
+function resolveConfirm(ok){
+  const c = State.confirm;
+  State.confirm = null;
+  if(ok && c){ c.action(...c.args); }
+  else { render(); }
+}
+
+/* ==================================================================
+   Actions — navigation & auth
+   ================================================================== */
+function goto(view){ State.view = view; State.sidebarOpen=false; render(); window.scrollTo(0,0); }
+
+async function submitCredentials(phone, password, remember){
+  if(!phone.trim() || !password.trim()) return;
+  State.authTemp = {phone,password,remember};
+  const existing = State.users.find(u=>u.phone===phone);
+  if(existing){
+    if(existing.disabled){ notify("این حساب غیرفعال شده است."); return; }
+    if(existing.password !== password){ notify("رمز عبور اشتباه است."); return; }
+    State.session = existing;
+    notify(`سلام ${existing.firstName} 👋`);
+    goto("dashboard");
+  } else {
+    State.authStage = "names";
+    render();
+  }
+}
+
+async function submitNames(firstName,lastName,securityQuestion,securityAnswer){
+  const {phone,password} = State.authTemp;
+  const newUser = { id:uid("u"), phone, password, firstName, lastName, role:"electrician", disabled:false,
+    securityQuestion: securityQuestion||"", securityAnswer: (securityAnswer||"").trim().toLowerCase(),
+    currencyDisplay: "rial", stampImage: null,
+    createdAt:Date.now() };
+  State.users.push(newUser);
+  State.session = newUser;
+  await persist(`خوش آمدید ${firstName} عزیز 👋 — حساب شما در پایگاه‌داده ذخیره شد.`);
+  goto("dashboard");
+}
+
+function submitForgotPhone(phone){
+  if(!phone.trim()) return;
+  const existing = State.users.find(u=>u.phone===phone);
+  if(!existing){ notify("کاربری با این شماره یافت نشد."); return; }
+  if(existing.disabled){ notify("این حساب غیرفعال شده است؛ با مدیر سیستم تماس بگیرید."); return; }
+  if(!existing.securityQuestion || !existing.securityAnswer){
+    notify("برای این حساب سؤال امنیتی ثبت نشده است؛ لطفاً با مدیر سیستم تماس بگیرید.");
+    return;
+  }
+  State.authTemp.phone = phone;
+  State.authTemp.question = existing.securityQuestion;
+  State.authStage = "forgot-question";
+  render();
+}
+
+function submitSecurityAnswer(answer){
+  const existing = State.users.find(u=>u.phone===State.authTemp.phone);
+  if(!existing){ notify("خطایی رخ داد؛ دوباره تلاش کنید."); State.authStage="credentials"; render(); return; }
+  const normalized = (answer||"").trim().toLowerCase();
+  if(!normalized || normalized !== existing.securityAnswer){
+    notify("پاسخ صحیح نیست؛ دوباره تلاش کنید.");
+    return;
+  }
+  State.authStage = "reset";
+  render();
+}
+
+async function submitResetPassword(newPassword, confirmPassword){
+  if(!newPassword || newPassword.length<4){ notify("رمز عبور باید حداقل ۴ کاراکتر باشد."); return; }
+  if(newPassword !== confirmPassword){ notify("رمز عبور و تکرار آن یکسان نیستند."); return; }
+  const phone = State.authTemp.phone;
+  const existing = State.users.find(u=>u.phone===phone);
+  if(!existing){ notify("خطایی رخ داد؛ دوباره تلاش کنید."); State.authStage="credentials"; render(); return; }
+  const updated = { ...existing, password:newPassword };
+  State.users = State.users.map(u=>u.id===existing.id?updated:u);
+  State.session = updated;
+  State.authStage = "credentials";
+  State.authTemp = {phone:"",password:"",remember:true};
+  await persist("رمز عبور با موفقیت تغییر و در پایگاه‌داده ذخیره شد ✅");
+  goto("dashboard");
+}
+
+function logout(){ State.session=null; State.authStage="credentials"; State.authTemp={phone:"",password:"",remember:true}; goto("landing"); }
+
+async function submitContactMessage(name, phone, message){
+  if(!name.trim() || !phone.trim() || !message.trim()){ notify("لطفاً همه فیلدها را تکمیل کنید."); return; }
+  State.contactMessages.unshift({ id:uid("msg"), name, phone, message, date:todayFa(), createdAt:Date.now() });
+  await persist("پیام شما با موفقیت ذخیره شد. متشکریم! ✅");
+}
+async function removeContactMessage(id){
+  State.contactMessages = State.contactMessages.filter(m=>m.id!==id);
+  await persist("پیام حذف و تغییرات ذخیره شد.");
+}
+
+/* ==================================================================
+   Actions — invoices
+   ================================================================== */
+function startNewInvoice(){
+  State.draft = { id:null, number:null, projectName:"", date:todayFa(), lines:{}, customItems:[], discountType:"amount", discountValue:0, useStamp: !!(State.session && State.session.stampImage) };
+  State.niQuery=""; State.niCat="همه";
+  State.customForm = {name:"",unit:"",price:"",qty:""};
+  goto("new-invoice");
+}
+
+function editInvoice(invId){
+  const inv = State.invoices.find(i=>i.id===invId);
+  if(!inv) return;
+  const lines = {};
+  const customItems = [];
+  inv.items.forEach(it=>{
+    if(it.type==="custom") customItems.push({id:it.id, name:it.name, unit:it.unit, price:it.price, qty:it.qty});
+    else lines[it.id]=it.qty;
+  });
+  State.draft = { id:inv.id, number:inv.number, projectName:inv.projectName, date:inv.date, lines, customItems,
+    discountType: inv.discountType||"amount", discountValue: inv.discountValue||0,
+    useStamp: inv.showStamp !== undefined ? inv.showStamp : !!(State.session && State.session.stampImage) };
+  State.niQuery=""; State.niCat="همه";
+  State.customForm = {name:"",unit:"",price:"",qty:""};
+  goto("new-invoice");
+}
+
+function setQty(itemId, qty){
+  const q = Math.max(0, Math.floor(Number(qty)||0));
+  State.draft.lines[itemId] = q;
+  render();
+}
+
+function addCustomItem(){
+  const f = State.customForm;
+  if(!f.name.trim() || !f.price) return;
+  State.draft.customItems.push({ id:uid("c"), name:f.name, unit:f.unit||"عدد", price:Number(f.price), qty:Math.max(1, Math.floor(Number(f.qty)||1)) });
+  State.customForm = {name:"",unit:"",price:"",qty:""};
+  render();
+}
+function removeCustomItem(id){
+  State.draft.customItems = State.draft.customItems.filter(c=>c.id!==id);
+  render();
+}
+function updateCustomItem(id, patch){
+  State.draft.customItems = State.draft.customItems.map(c=>c.id===id?{...c,...patch}:c);
+  render();
+}
+
+function computeDraftTotals(){
+  const d = State.draft;
+  const catalogItems = State.priceList.filter(p=>(d.lines[p.id]||0)>0)
+    .map(p=>({ id:p.id, type:"catalog", name:p.name, unit:p.unit, price:p.price, qty:d.lines[p.id] }));
+  const customItems = d.customItems.filter(c=>(c.qty||0)>0)
+    .map(c=>({ id:c.id, type:"custom", name:c.name, unit:c.unit, price:c.price, qty:c.qty }));
+  const items = [...catalogItems, ...customItems];
+  const subtotal = items.reduce((s,i)=>s+i.price*i.qty,0);
+  let discountAmount = 0;
+  if(d.discountType==="percent"){
+    discountAmount = subtotal * (Number(d.discountValue)||0) / 100;
+  } else {
+    discountAmount = Number(d.discountValue)||0;
+  }
+  discountAmount = Math.max(0, Math.min(discountAmount, subtotal));
+  const total = subtotal - discountAmount;
+  return { items, subtotal, discountAmount, total };
+}
+
+async function submitDraft(){
+  const d = State.draft;
+  if(!d.projectName.trim()){ notify("نام پروژه را وارد کنید."); return; }
+  const { items, subtotal, discountAmount, total } = computeDraftTotals();
+  if(items.length===0){ notify("حداقل یک آیتم با تعداد بیشتر از صفر انتخاب کنید."); return; }
+  let saved;
+  const common = { projectName:d.projectName, date:d.date, items, subtotal,
+    discountType:d.discountType, discountValue:Number(d.discountValue)||0, discountAmount, total, ownerId:State.session.id,
+    showStamp: !!d.useStamp };
+  if(d.id){
+    saved = { id:d.id, number:d.number, ...common };
+    State.invoices = State.invoices.map(x => x.id===d.id ? saved : x);
+  } else {
+    const number = "INV-" + (1000 + State.invoices.length + 1);
+    saved = { id:uid("inv"), number, ...common };
+    State.invoices.unshift(saved);
+  }
+  State.draft = saved;
+  goto("preview");
+  await persist("فاکتور با موفقیت ثبت و در پایگاه‌داده ذخیره شد ✅");
+}
+
+function viewInvoice(invId){
+  const inv = State.invoices.find(i=>i.id===invId);
+  if(!inv) return;
+  State.draft = inv;
+  State.shareMenuOpen = false;
+  goto("preview");
+}
+
+async function deleteInvoice(invId){
+  State.invoices = State.invoices.filter(x=>x.id!==invId);
+  await persist("فاکتور حذف و تغییرات ذخیره شد.");
+}
+
+async function duplicateInvoice(invId){
+  const inv = State.invoices.find(i=>i.id===invId);
+  if(!inv) return;
+  const number = "INV-" + (1000 + State.invoices.length + 1);
+  const copy = { ...inv, id:uid("inv"), number, date:todayFa() };
+  State.invoices.unshift(copy);
+  await persist("فاکتور کپی و ذخیره شد ✅");
+}
+
+async function saveAccount(firstName,lastName,phone,password,securityQuestion,securityAnswer,currencyDisplay){
+  const u = { ...State.session, firstName, lastName, phone,
+    password: password ? password : State.session.password,
+    securityQuestion: securityQuestion ? securityQuestion : State.session.securityQuestion,
+    securityAnswer: securityAnswer ? securityAnswer.trim().toLowerCase() : State.session.securityAnswer,
+    currencyDisplay: currencyDisplay || State.session.currencyDisplay || "rial" };
+  State.users = State.users.map(x=>x.id===u.id?u:x);
+  State.session = u;
+  await persist("اطلاعات حساب به‌روزرسانی و در پایگاه‌داده ذخیره شد ✅");
+}
+
+function uploadStampFile(file){
+  if(!file) return;
+  if(!file.type.startsWith("image/")){ notify("لطفاً یک فایل تصویری انتخاب کنید."); return; }
+  const reader = new FileReader();
+  reader.onload = () => {
+    const img = new Image();
+    img.onload = async () => {
+      const maxDim = 350;
+      let width = img.naturalWidth, height = img.naturalHeight;
+      if(width > maxDim || height > maxDim){
+        const scale = maxDim / Math.max(width, height);
+        width = Math.round(width*scale);
+        height = Math.round(height*scale);
+      }
+      const canvas = document.createElement("canvas");
+      canvas.width = width; canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0,0,width,height);
+      ctx.drawImage(img, 0, 0, width, height);
+      const dataUrl = canvas.toDataURL("image/png");
+      const u = { ...State.session, stampImage: dataUrl };
+      State.users = State.users.map(x=>x.id===u.id?u:x);
+      State.session = u;
+      await persist("مهر و امضا در پایگاه‌داده ذخیره شد ✅");
+    };
+    img.onerror = () => notify("بارگذاری تصویر با خطا مواجه شد.");
+    img.src = reader.result;
+  };
+  reader.onerror = () => notify("خواندن فایل با خطا مواجه شد.");
+  reader.readAsDataURL(file);
+}
+async function removeStampImage(){
+  const u = { ...State.session, stampImage: null };
+  State.users = State.users.map(x=>x.id===u.id?u:x);
+  State.session = u;
+  await persist("مهر و امضا حذف و تغییرات ذخیره شد.");
+}
+
+/* ==================================================================
+   Actions — sharing (PDF via html2canvas + jsPDF)
+   ================================================================== */
+async function buildPdfBlob(){
+  const original = document.querySelector(".invoice-paper");
+  if(!original || !window.html2canvas || !window.jspdf) return null;
+
+  // Build a fixed-width, non-scrolling offscreen copy so the export always
+  // captures the full table/layout regardless of the current (possibly
+  // narrow, mobile) viewport width.
+  const EXPORT_WIDTH = 760;
+  const wrapper = document.createElement("div");
+  wrapper.style.position = "fixed";
+  wrapper.style.top = "0";
+  wrapper.style.left = "-99999px";
+  wrapper.style.width = EXPORT_WIDTH + "px";
+  wrapper.style.background = "#ffffff";
+  wrapper.style.direction = "rtl";
+
+  const clone = original.cloneNode(true);
+  clone.style.width = EXPORT_WIDTH + "px";
+  clone.style.maxWidth = "none";
+  clone.style.margin = "0";
+  clone.querySelectorAll(".table-scroll").forEach(el=>{ el.style.overflow = "visible"; });
+  clone.querySelectorAll(".invoice-table").forEach(el=>{ el.style.minWidth = "0"; });
+
+  // <canvas> content is not copied by cloneNode — redraw the QR bitmap manually
+  const origQr = original.querySelector("#invoiceQr");
+  const cloneQr = clone.querySelector("#invoiceQr");
+  if(origQr && cloneQr){
+    cloneQr.width = origQr.width;
+    cloneQr.height = origQr.height;
+    const ctx = cloneQr.getContext("2d");
+    if(ctx) ctx.drawImage(origQr, 0, 0);
+  }
+
+  wrapper.appendChild(clone);
+  document.body.appendChild(wrapper);
+
+  let canvas;
+  try{
+    canvas = await html2canvas(clone, { scale:2, backgroundColor:"#ffffff", useCORS:true, windowWidth:EXPORT_WIDTH });
+  } finally {
+    document.body.removeChild(wrapper);
+  }
+
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF({ unit:"mm", format:"a4" });
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const pageHeight = pdf.internal.pageSize.getHeight();
+  const margin = 8; // mm on each side
+  const usableWidth = pageWidth - margin*2;
+  const usableHeight = pageHeight - margin*2;
+  const imgWidth = usableWidth;
+  const totalImgHeight = canvas.height * imgWidth / canvas.width;
+
+  if(totalImgHeight <= usableHeight){
+    pdf.addImage(canvas.toDataURL("image/png"), "PNG", margin, margin, imgWidth, totalImgHeight);
+  } else {
+    // Slice the tall canvas into page-sized chunks so each page is filled edge-to-edge
+    const pxPerPage = Math.floor(canvas.width * (usableHeight / imgWidth));
+    let renderedPx = 0;
+    let first = true;
+    while(renderedPx < canvas.height){
+      const sliceHeightPx = Math.min(pxPerPage, canvas.height - renderedPx);
+      const sliceCanvas = document.createElement("canvas");
+      sliceCanvas.width = canvas.width;
+      sliceCanvas.height = sliceHeightPx;
+      sliceCanvas.getContext("2d").drawImage(canvas, 0, renderedPx, canvas.width, sliceHeightPx, 0, 0, canvas.width, sliceHeightPx);
+      const sliceHeightMM = sliceHeightPx * imgWidth / canvas.width;
+      if(!first) pdf.addPage();
+      pdf.addImage(sliceCanvas.toDataURL("image/png"), "PNG", margin, margin, imgWidth, sliceHeightMM);
+      renderedPx += sliceHeightPx;
+      first = false;
+    }
+  }
+  return pdf.output("blob");
+}
+
+function invoiceFileName(){ return (State.draft && State.draft.number ? State.draft.number : "invoice") + ".pdf"; }
+
+async function downloadPdf(){
+  notify("در حال آماده‌سازی PDF...");
+  const blob = await buildPdfBlob();
+  if(!blob){ notify("امکان ساخت PDF نبود؛ از گزینه چاپ استفاده کنید."); return; }
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = invoiceFileName();
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+}
+
+const APP_LABELS = { telegram:"تلگرام", whatsapp:"واتساپ", eitaa:"ایتا", bale:"بله", rubika:"روبیکا" };
+
+async function shareFilePdf(app){
+  State.shareMenuOpen = false; render();
+  notify("در حال آماده‌سازی فایل PDF...");
+  const blob = await buildPdfBlob();
+  if(!blob){ notify("امکان ساخت PDF نبود."); return; }
+  const file = new File([blob], invoiceFileName(), { type:"application/pdf" });
+  if(navigator.canShare && navigator.canShare({ files:[file] })){
+    try{
+      await navigator.share({ files:[file], title:State.draft.number, text:`فاکتور ${State.draft.projectName} — لطفاً از لیست، ${APP_LABELS[app]||""} را انتخاب کنید.` });
+    }catch(e){ /* user cancelled the share sheet */ }
+  } else {
+    notify(`مرورگر شما اشتراک‌گذاری مستقیم فایل را پشتیبانی نمی‌کند؛ فایل PDF دانلود شد — آن را داخل ${APP_LABELS[app]||"اپلیکیشن"} پیوست کنید.`);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = invoiceFileName();
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+  }
+}
+
+function buildInvoiceText(inv, s){
+  const lines = [];
+  lines.push(`فاکتور ${inv.number}`);
+  lines.push(`پروژه: ${inv.projectName}`);
+  lines.push(`تاریخ: ${inv.date}`);
+  lines.push(`متخصص تأسیسات برقی: ${s.firstName} ${s.lastName} - ${s.phone}`);
+  lines.push("----------------------");
+  inv.items.forEach(it=> lines.push(`${it.name} | ${it.qty} ${it.unit} × ${toman(it.price)} = ${toman(it.price*it.qty)}`));
+  lines.push("----------------------");
+  if(inv.subtotal) lines.push(`جمع جزء: ${toman(inv.subtotal)}`);
+  if(inv.discountAmount) lines.push(`تخفیف: ${toman(inv.discountAmount)}`);
+  lines.push(`جمع کل: ${toman(inv.total)}`);
+  return lines.join("\n");
+}
+
+function shareSms(){
+  State.shareMenuOpen = false; render();
+  const text = buildInvoiceText(State.draft, State.session);
+  const uri = "sms:?body=" + encodeURIComponent(text);
+  window.location.href = uri;
+}
+
+/* ==================================================================
+   Actions — admin: price list
+   ================================================================== */
+async function addPriceItem(){
+  const f = State.plForm;
+  if(!f.name.trim() || !f.price) return;
+  State.priceList.push({ id:uid("p"), name:f.name, unit:f.unit||"عدد", price:Number(f.price), category:f.category, active:true });
+  State.plForm = {name:"",unit:"",price:"",category:CATEGORIES[0]};
+  await persist("آیتم به نرخنامه اضافه و ذخیره شد ✅");
+}
+async function updatePriceItem(id, patch){
+  State.priceList = State.priceList.map(p => p.id===id ? {...p, ...patch} : p);
+  await persist("نرخنامه به‌روزرسانی و ذخیره شد ✅");
+}
+async function removePriceItem(id){
+  State.priceList = State.priceList.filter(p=>p.id!==id);
+  await persist("آیتم حذف و تغییرات ذخیره شد.");
+}
+
+/* Admin: users */
+async function toggleUserActive(id){
+  State.users = State.users.map(u => u.id===id ? {...u, disabled: !u.disabled} : u);
+  await persist("وضعیت کاربر به‌روزرسانی و ذخیره شد ✅");
+}
+async function removeUser(id){
+  State.users = State.users.filter(u=>u.id!==id);
+  await persist("کاربر حذف و تغییرات ذخیره شد.");
+}
+async function changeUserRole(id, role){
+  State.users = State.users.map(u => u.id===id ? {...u, role} : u);
+  if(State.session && State.session.id===id) State.session = {...State.session, role};
+  await persist("نقش کاربر به‌روزرسانی و ذخیره شد ✅");
+}
+
+/* ==================================================================
+   Render — top level
+   ================================================================== */
+function render(){
+  const root = document.getElementById("root");
+  let html = "";
+  if(State.toast) html += `<div class="toast">${esc(State.toast)}</div>`;
+  if(State.saving) html += `<div class="saving-indicator"><span class="bolt-spin">⚡</span> در حال ذخیره در پایگاه‌داده...</div>`;
+
+  if(State.view==="public-invoice") html += renderPublicInvoice();
+  else if(State.view==="landing") html += renderLanding();
+  else if(State.view==="auth") html += renderAuth();
+  else if(State.session) html += renderShell();
+
+  if(State.confirm) html += renderConfirmModal();
+
+  root.innerHTML = html;
+  attachEvents();
+  if((State.view==="preview" && State.session) || State.view==="public-invoice") generateInvoiceQr();
+}
+
+const PUBLIC_SITE_URL = "https://foodaji.github.io/bargh-karan/";
+const QR_SIZE = 220;
+
+function publicInvoiceUrl(invoiceId){
+  return `${PUBLIC_SITE_URL}?invoice=${encodeURIComponent(invoiceId)}`;
+}
+
+function generateInvoiceQr(){
+  const el = document.getElementById("invoiceQr");
+  const inv = State.draft || State.publicInvoice;
+  if(!el || !window.QRious || !inv) return;
+  const url = publicInvoiceUrl(inv.id);
+  try{
+    new QRious({ element:el, value:url, size:QR_SIZE, background:"#ffffff", foreground:"#101828", padding:8, level:"H" });
+  }catch(e){}
+}
+
+function renderConfirmModal(){
+  return `
+  <div class="modal-overlay no-print">
+    <div class="modal-card">
+      <div class="modal-message">${esc(State.confirm.message)}</div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" data-act="confirm-no">انصراف</button>
+        <button class="btn btn-primary" data-act="confirm-yes">تأیید</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ------------------------------ Landing ------------------------------ */
+function renderLanding(){
+  return `
+  <div class="landing">
+    <header class="landing-nav">
+      <div class="brand"><span class="brand-badge">⚡</span><span>برق‌فاکتور</span></div>
+      <button class="btn btn-ghost" data-act="goto" data-view="auth">ورود / ثبت‌نام</button>
+    </header>
+
+    <section class="hero">
+      <div class="hero-copy">
+        <div class="eyebrow">⚡ ساخته‌شده برای برقکاران</div>
+        <h1>سامانه‌ای حرفه‌ای برای صدور سریع و دقیق فاکتورهای خدمات برق</h1>
+        <p>نرخنامه خدمات خود را یک‌بار تعریف کنید؛ سپس برای هر پروژه، تنها با وارد کردن تعداد، فاکتوری دقیق و حرفه‌ای در کمتر از یک دقیقه آماده، قابل چاپ و ارسال خواهد بود.</p>
+        <div class="hero-actions">
+          <button class="btn btn-primary btn-lg" data-act="goto" data-view="auth">شروع رایگان ←</button>
+        </div>
+        <div class="hero-stats">
+          <div><strong>&lt; ۱ دقیقه</strong><span>صدور هر فاکتور</span></div>
+          <div><strong>۸</strong><span>دسته‌بندی خدمات</span></div>
+          <div><strong>PDF</strong><span>آماده چاپ و اشتراک</span></div>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="gauge pulse"><div class="gauge-icon">⚡</div><div class="gauge-label">جمع کل زنده</div><div class="gauge-value">${toman(4360000)}</div></div>
+        <div class="mock-invoice">
+          <div class="mock-invoice-row head"><span>شرح</span><span>تعداد</span><span>جمع</span></div>
+          <div class="mock-invoice-row"><span>نصب پریز برق</span><span>۳</span><span>۷۵۰,۰۰۰</span></div>
+          <div class="mock-invoice-row"><span>نصب چراغ سقفی</span><span>۵</span><span>۱,۵۰۰,۰۰۰</span></div>
+          <div class="mock-invoice-row"><span>سیم‌کشی روکار</span><span>۲۲ متر</span><span>۲,۰۹۰,۰۰۰</span></div>
+          <div class="mock-invoice-total"><span>جمع کل</span><span>۴,۳۶۰,۰۰۰ تومان</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="features">
+      <h2>مزایای استفاده از برق‌فاکتور</h2>
+      <div class="feature-grid">
+        <div class="feature-card"><div class="feature-icon">⚡</div><h3>محاسبه آنی</h3><p>با ثبت تعداد هر خدمت، جمع آن ردیف و جمع کل فاکتور بلافاصله به‌روزرسانی می‌شود.</p></div>
+        <div class="feature-card"><div class="feature-icon">📄</div><h3>فاکتور استاندارد</h3><p>خروجی PDF منظم و قابل چاپ، مناسب برای تحویل رسمی به مشتری.</p></div>
+        <div class="feature-card"><div class="feature-icon">📋</div><h3>نرخنامه اختصاصی</h3><p>امکان تعریف نرخنامه متناسب با شهر و خدمات هر برقکار.</p></div>
+        <div class="feature-card"><div class="feature-icon">⭐</div><h3>سهولت استفاده</h3><p>طراحی ساده و روان، بدون نیاز به دانش تخصصی رایانه.</p></div>
+      </div>
+    </section>
+
+    <section class="contact">
+      <h2>ارتباط با ما</h2>
+      <p>سوالی دارید؟ پیامتان را برایمان بفرستید.</p>
+      <form class="contact-form" data-act="contact-submit">
+        <input name="name" placeholder="نام شما" required />
+        <input name="phone" placeholder="شماره موبایل" required />
+        <textarea name="message" placeholder="پیام شما" rows="3" required></textarea>
+        <button class="btn btn-primary" type="submit">ارسال پیام</button>
+      </form>
+    </section>
+
+    <footer class="landing-footer">© ${new Date().getFullYear()} برق‌فاکتور — ابزار صدور فاکتور برقکاران</footer>
+  </div>`;
+}
+
+/* ------------------------------ Auth ------------------------------ */
+function renderAuth(){
+  const t = State.authTemp;
+  let body = "";
+  if(State.authStage==="credentials"){
+    body = `
+      <form data-act="auth-credentials">
+        <h2>ورود یا ثبت‌نام</h2>
+        <p class="muted">شماره موبایل و رمز عبور را وارد کنید</p>
+        <label class="field"><span class="ic">📱</span><input name="phone" placeholder="شماره موبایل" value="${esc(t.phone)}" required /></label>
+        <label class="field"><span class="ic">🔒</span><input name="password" type="password" placeholder="رمز عبور" value="${esc(t.password)}" required /></label>
+        <label class="checkbox-row"><input type="checkbox" name="remember" ${t.remember?"checked":""}/> مرا به خاطر بسپار</label>
+        <button class="btn btn-primary btn-lg btn-block" type="submit">ادامه</button>
+        <button class="btn btn-text btn-block" type="button" data-act="goto-forgot" style="margin-top:6px;">رمز عبور را فراموش کرده‌اید؟</button>
+        <div class="auth-hint">اگر برای اولین بار است، نام و نام خانوادگی از شما پرسیده می‌شود. برای پنل مدیریت: admin / admin</div>
+      </form>`;
+  } else if(State.authStage==="names"){
+    body = `
+      <form data-act="auth-names">
+        <h2>خوش آمدید 👋</h2>
+        <p class="muted">این شماره جدید است — نام و نام خانوادگی خود را وارد کنید</p>
+        <label class="field"><span class="ic">👤</span><input name="firstName" placeholder="نام" required /></label>
+        <label class="field"><span class="ic">👤</span><input name="lastName" placeholder="نام خانوادگی" required /></label>
+        <label class="field"><span class="ic">❓</span>
+          <select name="securityQuestion" required>
+            <option value="">برای بازیابی رمز، یک سؤال امنیتی انتخاب کنید</option>
+            ${SECURITY_QUESTIONS.map(q=>`<option value="${esc(q)}">${esc(q)}</option>`).join("")}
+          </select>
+        </label>
+        <label class="field"><span class="ic">🔑</span><input name="securityAnswer" placeholder="پاسخ شما به سؤال بالا" required /></label>
+        <button class="btn btn-primary btn-lg btn-block" type="submit">ورود به پنل</button>
+      </form>`;
+  } else if(State.authStage==="forgot"){
+    body = `
+      <form data-act="auth-forgot">
+        <h2>بازیابی رمز عبور</h2>
+        <p class="muted">شماره موبایل حساب خود را وارد کنید</p>
+        <label class="field"><span class="ic">📱</span><input name="phone" placeholder="شماره موبایل" value="${esc(t.phone)}" required /></label>
+        <button class="btn btn-primary btn-lg btn-block" type="submit">ادامه</button>
+        <button class="btn btn-text btn-block" type="button" data-act="goto-credentials" style="margin-top:6px;">بازگشت به ورود</button>
+        <div class="auth-hint">در مرحله بعد، سؤال امنیتی‌ای که هنگام ثبت‌نام انتخاب کرده‌اید از شما پرسیده می‌شود.</div>
+      </form>`;
+  } else if(State.authStage==="forgot-question"){
+    body = `
+      <form data-act="auth-forgot-question">
+        <h2>سؤال امنیتی</h2>
+        <p class="muted">${esc(t.question || "")}</p>
+        <label class="field"><span class="ic">🔑</span><input name="answer" placeholder="پاسخ شما" required /></label>
+        <button class="btn btn-primary btn-lg btn-block" type="submit">تأیید پاسخ</button>
+        <button class="btn btn-text btn-block" type="button" data-act="goto-credentials" style="margin-top:6px;">بازگشت به ورود</button>
+      </form>`;
+  } else if(State.authStage==="reset"){
+    body = `
+      <form data-act="auth-reset">
+        <h2>تعیین رمز جدید</h2>
+        <p class="muted">رمز عبور جدید خود را وارد کنید</p>
+        <label class="field"><span class="ic">🔒</span><input name="newPassword" type="password" placeholder="رمز عبور جدید" required /></label>
+        <label class="field"><span class="ic">🔒</span><input name="confirmPassword" type="password" placeholder="تکرار رمز عبور جدید" required /></label>
+        <button class="btn btn-primary btn-lg btn-block" type="submit">ثبت رمز جدید و ورود</button>
+      </form>`;
+  }
+  return `
+  <div class="auth-screen">
+    <button class="btn btn-text back-btn" data-act="goto" data-view="landing">→ بازگشت</button>
+    <div class="auth-card">
+      <div class="brand center"><span class="brand-badge">⚡</span><span>برق‌فاکتور</span></div>
+      ${body}
+    </div>
+  </div>`;
+}
+
+/* ------------------------------ Shell ------------------------------ */
+function renderShell(){
+  const s = State.session;
+  const nav = [
+    {key:"dashboard", label:"داشبورد", icon:"🏠"},
+    {key:"invoices", label:"فاکتورهای من", icon:"📄"},
+    {key:"account", label:"اطلاعات حساب", icon:"👤"},
+  ];
+  if(s.role==="admin") nav.push({key:"admin", label:"پنل مدیریت", icon:"🛡"});
+
+  const navHtml = nav.map(n => `
+    <button class="nav-item ${State.view===n.key?"active":""}" data-act="goto" data-view="${n.key}">
+      <span>${n.icon}</span>${n.label}
+    </button>`).join("");
+
+  let content = "";
+  if(State.view==="dashboard") content = renderDashboard();
+  else if(State.view==="new-invoice") content = renderNewInvoice();
+  else if(State.view==="preview") content = renderPreview();
+  else if(State.view==="invoices") content = renderInvoicesList();
+  else if(State.view==="account") content = renderAccount();
+  else if(State.view==="admin" && s.role==="admin") content = renderAdmin();
+
+  return `
+  <div class="shell ${State.sidebarOpen?"sidebar-open":""}">
+    <div class="backdrop" data-act="toggle-sidebar"></div>
+    <aside class="sidebar">
+      <div class="brand"><span class="brand-badge">⚡</span><span>برق‌فاکتور</span></div>
+      <button class="btn btn-primary btn-block sidebar-cta" data-act="new-invoice">➕ صدور فاکتور جدید</button>
+      <nav class="sidebar-nav">${navHtml}</nav>
+      <button class="nav-item logout" data-act="logout">🚪 خروج</button>
+    </aside>
+    <div class="shell-main">
+      <header class="topbar">
+        <button class="btn btn-icon only-mobile" data-act="toggle-sidebar">☰</button>
+        <div class="topbar-greeting">سلام <strong>${esc(s.firstName)}</strong> — ${todayFa()}</div>
+        <div class="avatar">${esc(s.firstName?.[0]||"؟")}</div>
+      </header>
+      <main class="content">${content}</main>
+    </div>
+  </div>`;
+}
+
+/* ------------------------------ Dashboard ------------------------------ */
+function renderDashboard(){
+  const s = State.session;
+  const count = State.invoices.filter(i=>i.ownerId===s.id).length;
+  const cards = [
+    {icon:"➕",title:"صدور فاکتور جدید",desc:"کمتر از یک دقیقه",act:"new-invoice",tone:"orange"},
+    {icon:"📄",title:"فاکتورهای من",desc:`${count.toLocaleString("fa-IR")} فاکتور ثبت شده`,act:"goto",view:"invoices",tone:"blue"},
+    {icon:"👤",title:"اطلاعات حساب",desc:"ویرایش نام و شماره",act:"goto",view:"account",tone:"blue"},
+    {icon:"⚙",title:"تنظیمات",desc:"رمز عبور و تنظیمات حساب",act:"goto",view:"account",tone:"blue"},
+  ];
+  return `
+  <div class="dashboard">
+    <h1>سلام ${esc(s.firstName)} 👋</h1>
+    <p class="muted">امروز ${todayFa()} — آماده صدور فاکتور بعدی هستید؟</p>
+    <div class="dash-grid">
+      ${cards.map(c=>`
+        <button class="dash-card tone-${c.tone}" data-act="${c.act}" ${c.view?`data-view="${c.view}"`:""}>
+          <div class="dash-card-icon">${c.icon}</div>
+          <div class="dash-card-title">${c.title}</div>
+          <div class="dash-card-desc">${c.desc}</div>
+        </button>`).join("")}
+    </div>
+  </div>`;
+}
+
+/* ------------------------------ New invoice ------------------------------ */
+function renderNewInvoice(){
+  const d = State.draft;
+  const activePriceList = State.priceList.filter(p=>p.active);
+  const cats = ["همه", ...CATEGORIES.filter(c=>activePriceList.some(p=>p.category===c))];
+
+  const filtered = activePriceList.filter(p=>{
+    const matchesCat = State.niCat==="همه" || p.category===State.niCat;
+    const matchesQuery = p.name.toLowerCase().includes(State.niQuery.trim().toLowerCase());
+    return matchesCat && matchesQuery;
+  });
+
+  const grouped = cats.filter(c=>c!=="همه").map(c=>({cat:c, items:filtered.filter(p=>p.category===c)})).filter(g=>g.items.length>0);
+  const chips = cats.map(c=>`<button class="chip ${State.niCat===c?"active":""}" data-act="ni-cat" data-cat="${esc(c)}">${esc(c)}</button>`).join("");
+
+  const groupsHtml = grouped.length===0
+    ? `<div class="empty-state">آیتمی یافت نشد.</div>`
+    : grouped.map(g=>`
+      <div class="cat-group">
+        <div class="cat-group-title">${esc(g.cat)}</div>
+        <div class="item-list">
+          ${g.items.map(p=>{
+            const qty = d.lines[p.id]||0;
+            return `
+            <div class="item-row ${qty>0?"active":""}">
+              <div class="item-info">
+                <div class="item-name">${esc(p.name)}</div>
+                <div class="item-meta">${toman(p.price)} / ${esc(p.unit)}</div>
+              </div>
+              <div class="qty-control">
+                <button class="qty-btn" data-act="qty-dec" data-id="${p.id}">➖</button>
+                <input class="qty-input" type="number" min="0" value="${qty===0?"":qty}" placeholder="۰" data-act="qty-input" data-id="${p.id}" />
+                <button class="qty-btn" data-act="qty-inc" data-id="${p.id}">➕</button>
+              </div>
+              <div class="item-line-total">${qty>0?toman(qty*p.price):"—"}</div>
+            </div>`;
+          }).join("")}
+        </div>
+      </div>`).join("");
+
+  const cf = State.customForm;
+  const customRows = d.customItems.map(c=>`
+    <div class="custom-item-row">
+      <input value="${esc(c.name)}" data-act="custom-update" data-field="name" data-id="${c.id}" placeholder="نام آیتم" />
+      <input value="${esc(c.unit)}" data-act="custom-update" data-field="unit" data-id="${c.id}" placeholder="واحد" />
+      <input type="number" value="${c.price}" data-act="custom-update" data-field="price" data-id="${c.id}" placeholder="قیمت واحد (ریال)" />
+      <input type="number" value="${c.qty}" data-act="custom-update" data-field="qty" data-id="${c.id}" placeholder="تعداد" />
+      <button class="btn btn-icon danger" data-act="custom-remove" data-id="${c.id}">🗑</button>
+    </div>`).join("");
+
+  const { subtotal, discountAmount, total } = computeDraftTotals();
+
+  return `
+  <div class="new-invoice">
+    <div class="ni-header">
+      <div>
+        <h1>${d.id?"ویرایش فاکتور":"صدور فاکتور جدید"}</h1>
+        <p class="muted">نام پروژه را وارد کنید و از نرخنامه، تعداد هر خدمت را مشخص کنید.</p>
+      </div>
+      <button class="btn btn-text" data-act="goto" data-view="${d.id?"invoices":"dashboard"}">✕ انصراف</button>
+    </div>
+
+    <label class="field project-field">
+      <span class="ic">📋</span>
+      <input id="projectNameInput" placeholder="مثلاً: ساختمان آقای احمدی" value="${esc(d.projectName)}" data-act="project-name" />
+    </label>
+
+    <div class="search-row">
+      <label class="field search-field"><span class="ic">🔍</span><input id="niSearchInput" placeholder="جستجوی آیتم..." value="${esc(State.niQuery)}" data-act="ni-search" /></label>
+      <div class="cat-chips">${chips}</div>
+    </div>
+
+    <div class="ni-body">
+      <div class="items-column">
+        ${groupsHtml}
+
+        <div class="custom-section">
+          <div class="custom-section-title">➕ افزودن آیتم دلخواه (خارج از نرخنامه)</div>
+          ${customRows}
+          <div class="custom-add-row">
+            <input id="customName" placeholder="نام آیتم" value="${esc(cf.name)}" data-act="cf-field" data-field="name" />
+            <input id="customUnit" placeholder="واحد" value="${esc(cf.unit)}" data-act="cf-field" data-field="unit" />
+            <input id="customPrice" type="number" placeholder="قیمت واحد (ریال)" value="${esc(cf.price)}" data-act="cf-field" data-field="price" />
+            <input id="customQty" type="number" placeholder="تعداد" value="${esc(cf.qty)}" data-act="cf-field" data-field="qty" />
+            <button class="btn btn-secondary" data-act="custom-add">افزودن</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="summary-column">
+        <div class="summary-card">
+          <div class="gauge inline"><div class="gauge-icon">⚡</div><div class="gauge-label">جمع کل زنده</div><div class="gauge-value">${toman(total)}</div></div>
+
+          <div class="summary-line"><span>جمع جزء</span><strong>${toman(subtotal)}</strong></div>
+
+          <div>
+            <div class="summary-line" style="margin-bottom:6px;"><span>تخفیف</span></div>
+            <div class="discount-box">
+              <select data-act="discount-type">
+                <option value="amount" ${d.discountType==="amount"?"selected":""}>مبلغ (تومان)</option>
+                <option value="percent" ${d.discountType==="percent"?"selected":""}>درصد (%)</option>
+              </select>
+              <input type="number" min="0" value="${d.discountValue||""}" placeholder="۰" data-act="discount-value" />
+            </div>
+            ${discountAmount>0?`<div class="summary-line" style="margin-top:6px;"><span>مبلغ تخفیف</span><strong>${toman(discountAmount)}</strong></div>`:""}
+          </div>
+
+          ${State.session.stampImage ? `
+          <label class="checkbox-row" style="margin-bottom:0;">
+            <input type="checkbox" data-act="use-stamp" ${d.useStamp?"checked":""} /> افزودن مهر و امضا به این فاکتور
+          </label>` : ""}
+
+          <button class="btn btn-primary btn-lg btn-block" data-act="submit-draft">✅ ثبت فاکتور</button>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ------------------------------ Preview ------------------------------ */
+function renderInvoicePaper(inv, owner){
+  const rows = inv.items.map((it,idx)=>`
+    <tr>
+      <td>${(idx+1).toLocaleString("fa-IR")}</td>
+      <td>${esc(it.name)}</td>
+      <td>${esc(it.unit)}</td>
+      <td>${it.qty.toLocaleString("fa-IR")}</td>
+      <td>${toman(it.price)}</td>
+      <td>${toman(it.price*it.qty)}</td>
+    </tr>`).join("");
+
+  return `
+    <div class="invoice-paper">
+      <div class="invoice-head">
+        <div class="invoice-brand"><span class="brand-badge">⚡</span><span>فاکتور خدمات فنی برق</span></div>
+        <div class="invoice-meta">
+          <div><span>شماره فاکتور:</span> <strong>${esc(inv.number)}</strong></div>
+          <div><span>تاریخ:</span> <strong>${esc(inv.date)}</strong></div>
+        </div>
+      </div>
+      <div class="invoice-parties">
+        <div>
+          <div class="party-label">متخصص تأسیسات برقی</div>
+          <div class="party-value">${esc(owner?.firstName||"")} ${esc(owner?.lastName||"")}</div>
+          <div class="party-value muted">${esc(owner?.phone||"")}</div>
+        </div>
+        <div>
+          <div class="party-label">پروژه</div>
+          <div class="party-value">${esc(inv.projectName)}</div>
+        </div>
+      </div>
+      <div class="table-scroll">
+        <table class="invoice-table">
+          <thead><tr><th>ردیف</th><th>شرح</th><th>واحد</th><th>تعداد</th><th>قیمت واحد</th><th>قیمت کل</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+      <div class="invoice-totals">
+        ${inv.discountAmount>0?`<div class="invoice-subtotal-row"><span>جمع جزء</span><span>${toman(inv.subtotal)}</span></div>
+        <div class="invoice-discount-row"><span>تخفیف</span><span>- ${toman(inv.discountAmount)}</span></div>`:""}
+        <div class="invoice-total-row"><span>جمع کل</span><strong>${toman(inv.total)}</strong></div>
+        <div class="invoice-words-row">مبلغ به حروف: ${esc(tomanToWords(inv.total))}</div>
+      </div>
+      <div class="invoice-footer">
+        <div class="sign-box">
+          <div class="sign-label">محل امضا</div>
+          ${(inv.showStamp!==false && owner?.stampImage) ? `<img src="${owner.stampImage}" class="stamp-img" alt="مهر و امضا" />` : ""}
+          <div class="sign-line"></div>
+        </div>
+        <div class="qr-box"><canvas id="invoiceQr" width="220" height="220"></canvas><div class="qr-label">اسکن برای مشاهده و استعلام فاکتور</div></div>
+      </div>
+    </div>`;
+}
+
+function renderPreview(){
+  const inv = State.draft;
+  const s = State.session;
+
+  const shareMenu = State.shareMenuOpen ? `
+    <div class="share-menu">
+      <button data-act="share-app" data-app="telegram">🔵 تلگرام (PDF)</button>
+      <button data-act="share-app" data-app="whatsapp">🟢 واتساپ (PDF)</button>
+      <button data-act="share-app" data-app="eitaa">🟡 ایتا (PDF)</button>
+      <button data-act="share-app" data-app="bale">🔷 بله (PDF)</button>
+      <button data-act="share-app" data-app="rubika">🟣 روبیکا (PDF)</button>
+      <div class="divider"></div>
+      <button data-act="share-sms">✉ پیامک (متن فاکتور)</button>
+    </div>` : "";
+
+  return `
+  <div class="preview-wrap">
+    <div class="preview-toolbar no-print">
+      <button class="btn btn-text" data-act="goto" data-view="invoices">→ بازگشت به فاکتورها</button>
+      <div class="toolbar-actions">
+        <button class="btn btn-secondary" data-act="print">🖨 چاپ</button>
+        <button class="btn btn-secondary" data-act="download-pdf">⬇ دانلود PDF</button>
+        <div class="share-wrap">
+          <button class="btn btn-secondary" data-act="toggle-share">📤 اشتراک‌گذاری</button>
+          ${shareMenu}
+        </div>
+      </div>
+    </div>
+    ${renderInvoicePaper(inv, s)}
+  </div>`;
+}
+
+function renderPublicInvoice(){
+  const inv = State.publicInvoice;
+  if(!inv){
+    return `
+    <div class="public-wrap">
+      <div class="auth-card" style="max-width:420px;margin:60px auto;text-align:center;">
+        <div class="brand center"><span class="brand-badge">⚡</span><span>برق‌فاکتور</span></div>
+        <p class="muted">فاکتور مورد نظر یافت نشد یا حذف شده است.</p>
+      </div>
+    </div>`;
+  }
+  return `
+  <div class="public-wrap">
+    <div class="preview-toolbar no-print" style="max-width:760px;margin:16px auto;">
+      <div class="brand"><span class="brand-badge">⚡</span><span>برق‌فاکتور</span></div>
+      <button class="btn btn-secondary" data-act="print">🖨 چاپ</button>
+    </div>
+    ${renderInvoicePaper(inv, State.publicOwner)}
+  </div>`;
+}
+
+/* ------------------------------ Invoices list ------------------------------ */
+function renderInvoicesList(){
+  const s = State.session;
+  const mine = State.invoices.filter(i=>i.ownerId===s.id);
+  const q = State.invoicesQuery.toLowerCase();
+  const filtered = mine.filter(i => i.projectName.toLowerCase().includes(q) || i.number.includes(State.invoicesQuery));
+
+  const list = filtered.length===0
+    ? `<div class="empty-state big">📄<p>هنوز فاکتوری ثبت نکرده‌اید.</p><button class="btn btn-primary" data-act="new-invoice">صدور اولین فاکتور</button></div>`
+    : `<div class="invoice-cards">${filtered.map(inv=>`
+        <div class="invoice-card">
+          <div class="invoice-card-main" data-act="view-invoice" data-id="${inv.id}">
+            <div class="invoice-card-title">${esc(inv.projectName)}</div>
+            <div class="invoice-card-meta">${esc(inv.number)} • ${esc(inv.date)}</div>
+          </div>
+          <div class="invoice-card-total">${toman(inv.total)}</div>
+          <div class="invoice-card-actions">
+            <button class="btn btn-icon" title="مشاهده" data-act="view-invoice" data-id="${inv.id}">📄</button>
+            <button class="btn btn-icon" title="ویرایش" data-act="edit-invoice" data-id="${inv.id}">✏️</button>
+            <button class="btn btn-icon" title="کپی" data-act="dup-invoice" data-id="${inv.id}">📋</button>
+            <button class="btn btn-icon" title="چاپ" data-act="view-invoice" data-id="${inv.id}">🖨</button>
+            <button class="btn btn-icon danger" title="حذف" data-act="del-invoice" data-id="${inv.id}">🗑</button>
+          </div>
+        </div>`).join("")}</div>`;
+
+  return `
+  <div class="invoices-list">
+    <div class="list-header"><h1>فاکتورهای من</h1><button class="btn btn-primary" data-act="new-invoice">➕ فاکتور جدید</button></div>
+    <label class="field search-field"><span class="ic">🔍</span><input placeholder="جستجو بر اساس نام پروژه یا شماره فاکتور..." value="${esc(State.invoicesQuery)}" data-act="invoices-search" /></label>
+    ${list}
+  </div>`;
+}
+
+/* ------------------------------ Account ------------------------------ */
+function renderAccount(){
+  const s = State.session;
+  return `
+  <div class="account-page">
+    <h1>اطلاعات حساب</h1>
+    <form class="account-form" data-act="save-account">
+      <label class="field"><span class="ic">👤</span><input name="firstName" value="${esc(s.firstName)}" placeholder="نام" /></label>
+      <label class="field"><span class="ic">👤</span><input name="lastName" value="${esc(s.lastName)}" placeholder="نام خانوادگی" /></label>
+      <label class="field"><span class="ic">📱</span><input name="phone" value="${esc(s.phone)}" placeholder="شماره موبایل" /></label>
+      <label class="field"><span class="ic">🔒</span><input name="password" type="password" placeholder="رمز عبور جدید (اختیاری)" /></label>
+      <label class="field"><span class="ic">💰</span>
+        <select name="currencyDisplay">
+          <option value="rial" ${s.currencyDisplay!=="toman"?"selected":""}>نمایش قیمت‌ها به ریال</option>
+          <option value="toman" ${s.currencyDisplay==="toman"?"selected":""}>نمایش قیمت‌ها به تومان</option>
+        </select>
+      </label>
+      <p class="muted" style="font-size:12px;margin:-8px 0 12px;">قیمت‌ها در پایگاه‌داده همیشه به ریال ذخیره می‌شوند؛ این فقط نحوه‌ی نمایش آن‌ها را در صفحات شما تغییر می‌دهد.</p>
+      <label class="field"><span class="ic">❓</span>
+        <select name="securityQuestion">
+          <option value="">سؤال امنیتی برای بازیابی رمز (اختیاری)</option>
+          ${SECURITY_QUESTIONS.map(q=>`<option value="${esc(q)}" ${s.securityQuestion===q?"selected":""}>${esc(q)}</option>`).join("")}
+        </select>
+      </label>
+      <label class="field"><span class="ic">🔑</span><input name="securityAnswer" placeholder="${s.securityAnswer ? "پاسخ جدید (اختیاری — برای تغییر)" : "پاسخ سؤال امنیتی"}" /></label>
+      <button class="btn btn-primary btn-lg" type="submit">✅ ذخیره تغییرات</button>
+    </form>
+
+    <div class="stamp-section">
+      <h2>مهر و امضا</h2>
+      <p class="muted">یک تصویر با پس‌زمینه شفاف (PNG) از مهر یا امضای خود بارگذاری کنید تا در محل امضای فاکتورها قرار بگیرد.</p>
+      <div class="stamp-sample-box">
+        <img src="https://yektamohr.com/wp-content/uploads/2024/10/%DB%8C%DA%A9%D8%AA%D8%A7-%D9%85%D9%87%D8%B1-%D8%B4%DB%8C%D8%B1%D8%A7%D8%B2-%D9%85%D9%87%D8%B1-%D8%A7%D9%85%D8%B6%D8%A7%D8%A1-%D8%B3%D8%A7%D9%86%DB%8C-3512-06.jpg" class="stamp-sample-img" alt="نمونه تصویر مهر و امضا" loading="lazy" />
+        <div class="stamp-sample-text">
+          <strong>نمونه‌ی تصویر مناسب</strong>
+          <p class="muted">تصویری شبیه به این — مهر/امضا روی پس‌زمینه‌ی شفاف یا ساده، با ابعاد حدود <strong>۳۵۰×۳۵۰ پیکسل</strong> (مربعی) — بهترین نتیجه را روی فاکتور می‌دهد.</p>
+        </div>
+      </div>
+      ${s.stampImage ? `
+        <div class="stamp-preview-box">
+          <img src="${s.stampImage}" class="stamp-preview-img" alt="مهر و امضا" />
+          <button class="btn btn-icon danger" data-act="remove-stamp" title="حذف">🗑</button>
+        </div>` : ""}
+      <label class="btn btn-secondary stamp-upload-btn">
+        📎 ${s.stampImage ? "تغییر تصویر" : "بارگذاری مهر و امضا"}
+        <input type="file" accept="image/*" data-act="upload-stamp" class="hidden" />
+      </label>
+    </div>
+  </div>`;
+}
+
+/* ------------------------------ Admin ------------------------------ */
+function renderAdmin(){
+  const tabs = [
+    {key:"report",label:"گزارش‌ها",icon:"📊"},
+    {key:"pricelist",label:"نرخنامه",icon:"📋"},
+    {key:"users",label:"کاربران",icon:"👥"},
+    {key:"invoices",label:"فاکتورها",icon:"📄"},
+    {key:"messages",label:"پیام‌های تماس",icon:"✉️"},
+  ];
+  const tabsHtml = tabs.map(t=>`<button class="tab ${State.adminTab===t.key?"active":""}" data-act="admin-tab" data-tab="${t.key}">${t.icon} ${t.label}${t.key==="messages"&&State.contactMessages.length?` (${State.contactMessages.length.toLocaleString("fa-IR")})`:""}</button>`).join("");
+
+  let body = "";
+  if(State.adminTab==="report") body = renderAdminReport();
+  else if(State.adminTab==="pricelist") body = renderAdminPricelist();
+  else if(State.adminTab==="users") body = renderAdminUsers();
+  else if(State.adminTab==="invoices") body = renderAdminInvoices();
+  else if(State.adminTab==="messages") body = renderAdminMessages();
+
+  return `<div class="admin-page"><h1>پنل مدیریت</h1><div class="admin-tabs">${tabsHtml}</div>${body}</div>`;
+}
+
+function renderAdminMessages(){
+  const q = State.adminMessagesQuery;
+  const filtered = State.contactMessages.filter(m => (m.name+m.phone+m.message).includes(q));
+  const rows = filtered.map(m=>`
+    <div class="message-card">
+      <div class="message-card-head">
+        <div><strong>${esc(m.name)}</strong> <span class="muted">— ${esc(m.phone)}</span></div>
+        <div class="message-card-actions">
+          <span class="muted" style="font-size:12px;">${esc(m.date)}</span>
+          <button class="btn btn-icon danger" data-act="del-message" data-id="${m.id}" title="حذف">🗑</button>
+        </div>
+      </div>
+      <div class="message-card-body">${esc(m.message)}</div>
+    </div>`).join("");
+
+  return `
+  <div class="admin-messages">
+    <label class="field search-field"><span class="ic">🔍</span><input placeholder="جستجو در پیام‌ها..." value="${esc(q)}" data-act="admin-messages-search" /></label>
+    <div class="message-list">
+      ${rows || `<div class="empty-state">هنوز پیامی از فرم تماس با ما ثبت نشده است.</div>`}
+    </div>
+  </div>`;
+}
+
+function renderAdminReport(){
+  const totalAmount = State.invoices.reduce((s,i)=>s+i.total,0);
+  const itemCounts = {};
+  State.invoices.forEach(inv=>inv.items.forEach(it=>{ itemCounts[it.name]=(itemCounts[it.name]||0)+it.qty; }));
+  const topItems = Object.entries(itemCounts).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const topHtml = topItems.length===0
+    ? `<li class="muted">هنوز داده‌ای وجود ندارد.</li>`
+    : topItems.map(([name,qty])=>`<li><span>${esc(name)}</span><strong>${qty.toLocaleString("fa-IR")}</strong></li>`).join("");
+
+  return `
+  <div class="report-grid">
+    <div class="stat-card"><span>تعداد کاربران</span><strong>${State.users.length.toLocaleString("fa-IR")}</strong></div>
+    <div class="stat-card"><span>تعداد فاکتورها</span><strong>${State.invoices.length.toLocaleString("fa-IR")}</strong></div>
+    <div class="stat-card"><span>مبلغ کل صادر شده</span><strong>${toman(totalAmount)}</strong></div>
+    <div class="stat-card"><span>آیتم‌های نرخنامه</span><strong>${State.priceList.length.toLocaleString("fa-IR")}</strong></div>
+    <div class="stat-card wide"><span>پرکاربردترین آیتم‌ها</span><ul class="top-list">${topHtml}</ul></div>
+  </div>`;
+}
+
+function renderAdminPricelist(){
+  const f = State.plForm;
+  const rows = State.priceList.map(p=>`
+    <div class="pl-row ${p.active?"":"inactive"}">
+      <div class="pl-cell" data-label="نام"><input value="${esc(p.name)}" data-act="pl-update" data-field="name" data-id="${p.id}" /></div>
+      <div class="pl-cell" data-label="دسته">
+        <select data-act="pl-update" data-field="category" data-id="${p.id}">
+          ${CATEGORIES.map(c=>`<option value="${esc(c)}" ${p.category===c?"selected":""}>${esc(c)}</option>`).join("")}
+        </select>
+      </div>
+      <div class="pl-cell" data-label="واحد"><input value="${esc(p.unit)}" data-act="pl-update" data-field="unit" data-id="${p.id}" /></div>
+      <div class="pl-cell" data-label="قیمت (ریال)"><input type="number" value="${p.price}" data-act="pl-update" data-field="price" data-id="${p.id}" /></div>
+      <div class="pl-cell" data-label="فعال"><label class="switch"><input type="checkbox" ${p.active?"checked":""} data-act="pl-toggle" data-id="${p.id}" /><span class="slider"></span></label></div>
+      <div class="pl-cell" data-label=""><button class="btn btn-icon danger" data-act="pl-remove" data-id="${p.id}">🗑</button></div>
+    </div>`).join("");
+
+  return `
+  <div class="admin-pricelist">
+    <form class="add-item-form" data-act="pl-add">
+      <input name="name" placeholder="نام خدمت" value="${esc(f.name)}" />
+      <input name="unit" placeholder="واحد (عدد، متر...)" value="${esc(f.unit)}" />
+      <input name="price" type="number" placeholder="قیمت (ریال)" value="${esc(f.price)}" />
+      <select name="category">${CATEGORIES.map(c=>`<option value="${esc(c)}" ${f.category===c?"selected":""}>${esc(c)}</option>`).join("")}</select>
+      <button class="btn btn-primary" type="submit">➕ افزودن</button>
+    </form>
+    <div class="pricelist-table">
+      <div class="pl-row pl-head"><span>نام</span><span>دسته</span><span>واحد</span><span>قیمت (ریال)</span><span>فعال</span><span></span></div>
+      ${rows}
+    </div>
+  </div>`;
+}
+
+function renderAdminUsers(){
+  const q = State.adminUsersQuery;
+  const filtered = State.users.filter(u => (u.firstName+u.lastName+u.phone).includes(q));
+  const rows = filtered.map(u=>`
+    <div class="user-row">
+      <div class="user-cell" data-label="نام">${esc(u.firstName)} ${esc(u.lastName)}</div>
+      <div class="user-cell" data-label="موبایل">${esc(u.phone)}</div>
+      <div class="user-cell" data-label="نقش">
+        <select data-act="user-role" data-id="${u.id}">
+          <option value="electrician" ${u.role!=="admin"?"selected":""}>برقکار</option>
+          <option value="admin" ${u.role==="admin"?"selected":""}>مدیر</option>
+        </select>
+      </div>
+      <div class="user-cell" data-label="وضعیت"><span class="${u.disabled?"status-off":"status-on"}">${u.disabled?"غیرفعال":"فعال"}</span></div>
+      <div class="user-cell" data-label="عملیات">
+        <span class="user-actions">
+          <button class="btn btn-icon" data-act="user-toggle" data-id="${u.id}" title="${u.disabled?"فعال‌سازی":"غیرفعال‌سازی"}">${u.disabled?"✅":"✖"}</button>
+          <button class="btn btn-icon danger" data-act="user-remove" data-id="${u.id}" title="حذف">🗑</button>
+        </span>
+      </div>
+    </div>`).join("");
+
+  return `
+  <div class="admin-users">
+    <label class="field search-field"><span class="ic">🔍</span><input placeholder="جستجوی کاربر..." value="${esc(q)}" data-act="admin-users-search" /></label>
+    <div class="user-table">
+      <div class="user-row user-head"><span>نام</span><span>موبایل</span><span>نقش</span><span>وضعیت</span><span></span></div>
+      ${rows}
+    </div>
+  </div>`;
+}
+
+function renderAdminInvoices(){
+  const q = State.adminInvoicesQuery;
+  const filtered = State.invoices.filter(i => i.projectName.includes(q) || i.number.includes(q));
+  const ownerName = id => { const u = State.users.find(x=>x.id===id); return u ? `${u.firstName} ${u.lastName}` : "—"; };
+  const rows = filtered.map(inv=>`
+    <div class="user-row">
+      <div class="user-cell" data-label="شماره">${esc(inv.number)}</div>
+      <div class="user-cell" data-label="پروژه">${esc(inv.projectName)}</div>
+      <div class="user-cell" data-label="برقکار">${esc(ownerName(inv.ownerId))}</div>
+      <div class="user-cell" data-label="تاریخ">${esc(inv.date)}</div>
+      <div class="user-cell" data-label="مبلغ">${toman(inv.total)}</div>
+    </div>`).join("");
+
+  return `
+  <div class="admin-invoices">
+    <label class="field search-field"><span class="ic">🔍</span><input placeholder="جستجو در همه فاکتورها..." value="${esc(q)}" data-act="admin-invoices-search" /></label>
+    <div class="user-table">
+      <div class="user-row user-head"><span>شماره</span><span>پروژه</span><span>برقکار</span><span>تاریخ</span><span>مبلغ</span></div>
+      ${rows || `<div class="empty-state">فاکتوری یافت نشد.</div>`}
+    </div>
+  </div>`;
+}
+
+/* ==================================================================
+   Event wiring
+   ================================================================== */
+function attachEvents(){
+  const root = document.getElementById("root");
+
+  root.querySelectorAll("[data-act]").forEach(el=>{
+    const act = el.dataset.act;
+    const clickable = el.tagName==="BUTTON" || act==="view-invoice" || act==="toggle-sidebar" && el.classList.contains("backdrop");
+    if(clickable){
+      el.addEventListener("click",()=>{
+        switch(act){
+          case "goto": goto(el.dataset.view); break;
+          case "goto-forgot": State.authStage="forgot"; render(); break;
+          case "goto-credentials": State.authStage="credentials"; render(); break;
+          case "new-invoice": startNewInvoice(); break;
+          case "logout": askConfirm("آیا می‌خواهید از حساب خود خارج شوید؟", logout); break;
+          case "toggle-sidebar": State.sidebarOpen=!State.sidebarOpen; render(); break;
+          case "qty-inc": setQty(el.dataset.id, (State.draft.lines[el.dataset.id]||0)+1); break;
+          case "qty-dec": setQty(el.dataset.id, (State.draft.lines[el.dataset.id]||0)-1); break;
+          case "custom-add": addCustomItem(); break;
+          case "custom-remove": removeCustomItem(el.dataset.id); break;
+          case "submit-draft": askConfirm("آیا از ثبت این فاکتور مطمئن هستید؟", submitDraft); break;
+          case "print": window.print(); break;
+          case "download-pdf": downloadPdf(); break;
+          case "toggle-share": State.shareMenuOpen = !State.shareMenuOpen; render(); break;
+          case "share-app": shareFilePdf(el.dataset.app); break;
+          case "share-sms": shareSms(); break;
+          case "view-invoice": viewInvoice(el.dataset.id); break;
+          case "edit-invoice": editInvoice(el.dataset.id); break;
+          case "dup-invoice": duplicateInvoice(el.dataset.id); break;
+          case "del-invoice": askConfirm("این فاکتور برای همیشه حذف می‌شود. ادامه می‌دهید؟", deleteInvoice, [el.dataset.id]); break;
+          case "ni-cat": State.niCat = el.dataset.cat; render(); break;
+          case "admin-tab": State.adminTab = el.dataset.tab; render(); break;
+          case "pl-remove": askConfirm("این آیتم برای همیشه از نرخنامه حذف می‌شود. ادامه می‌دهید؟", removePriceItem, [el.dataset.id]); break;
+          case "user-toggle": toggleUserActive(el.dataset.id); break;
+          case "user-remove": askConfirm("این کاربر برای همیشه حذف می‌شود. ادامه می‌دهید؟", removeUser, [el.dataset.id]); break;
+          case "del-message": askConfirm("این پیام حذف شود؟", removeContactMessage, [el.dataset.id]); break;
+          case "confirm-yes": resolveConfirm(true); break;
+          case "confirm-no": resolveConfirm(false); break;
+          case "remove-stamp": askConfirm("مهر و امضای بارگذاری‌شده حذف شود؟", removeStampImage); break;
+        }
+      });
+    }
+  });
+
+  root.querySelectorAll('[data-act="view-invoice"]').forEach(el=>{
+    if(el.tagName==="DIV"){ el.style.cursor="pointer"; el.addEventListener("click",()=>viewInvoice(el.dataset.id)); }
+  });
+
+  root.querySelectorAll('[data-act="pl-toggle"]').forEach(el=>{
+    el.addEventListener("change",()=>updatePriceItem(el.dataset.id,{active:el.checked}));
+  });
+
+  root.querySelectorAll('[data-act="user-role"]').forEach(el=>{
+    el.addEventListener("change",()=>changeUserRole(el.dataset.id, el.value));
+  });
+
+  const stampInput = root.querySelector('[data-act="upload-stamp"]');
+  if(stampInput) stampInput.addEventListener("change", ()=>{
+    if(stampInput.files && stampInput.files[0]) uploadStampFile(stampInput.files[0]);
+  });
+
+  root.querySelectorAll('[data-act="pl-update"]').forEach(el=>{
+    const field = el.dataset.field;
+    const evt = el.tagName==="SELECT" ? "change" : "blur";
+    el.addEventListener(evt, ()=>{
+      const val = field==="price" ? Number(el.value) : el.value;
+      updatePriceItem(el.dataset.id, {[field]: val});
+    });
+  });
+
+  root.querySelectorAll('[data-act="custom-update"]').forEach(el=>{
+    const field = el.dataset.field;
+    el.addEventListener("blur", ()=>{
+      const val = (field==="price"||field==="qty") ? Number(el.value) : el.value;
+      updateCustomItem(el.dataset.id, {[field]: val});
+    });
+  });
+
+  const discType = root.querySelector('[data-act="discount-type"]');
+  if(discType) discType.addEventListener("change", ()=>{ State.draft.discountType = discType.value; render(); });
+  const discVal = root.querySelector('[data-act="discount-value"]');
+  if(discVal) discVal.addEventListener("input", ()=>{ State.draft.discountValue = discVal.value; render(); refocus('[data-act="discount-value"]'); });
+  const useStampBox = root.querySelector('[data-act="use-stamp"]');
+  if(useStampBox) useStampBox.addEventListener("change", ()=>{ State.draft.useStamp = useStampBox.checked; });
+
+  bindLiveInput("#niSearchInput", v=>{ State.niQuery=v; render(); refocus("#niSearchInput"); });
+  bindLiveInput('[data-act="project-name"]', v=>{ State.draft.projectName=v; });
+  bindLiveInput('[data-act="invoices-search"]', v=>{ State.invoicesQuery=v; render(); refocus('[data-act="invoices-search"]'); });
+  bindLiveInput('[data-act="admin-users-search"]', v=>{ State.adminUsersQuery=v; render(); refocus('[data-act="admin-users-search"]'); });
+  bindLiveInput('[data-act="admin-invoices-search"]', v=>{ State.adminInvoicesQuery=v; render(); refocus('[data-act="admin-invoices-search"]'); });
+  bindLiveInput('[data-act="admin-messages-search"]', v=>{ State.adminMessagesQuery=v; render(); refocus('[data-act="admin-messages-search"]'); });
+  bindLiveInput('#customName', v=>{ State.customForm.name=v; });
+  bindLiveInput('#customUnit', v=>{ State.customForm.unit=v; });
+  bindLiveInput('#customPrice', v=>{ State.customForm.price=v; });
+  bindLiveInput('#customQty', v=>{ State.customForm.qty=v; });
+
+  root.querySelectorAll('[data-act="qty-input"]').forEach(el=>{
+    el.addEventListener("change",()=>setQty(el.dataset.id, el.value));
+  });
+
+  const credForm = root.querySelector('[data-act="auth-credentials"]');
+  if(credForm) credForm.addEventListener("submit",e=>{
+    e.preventDefault();
+    const fd = new FormData(credForm);
+    submitCredentials(fd.get("phone")||"", fd.get("password")||"", !!fd.get("remember"));
+  });
+
+  const namesForm = root.querySelector('[data-act="auth-names"]');
+  if(namesForm) namesForm.addEventListener("submit",e=>{
+    e.preventDefault();
+    const fd = new FormData(namesForm);
+    submitNames(fd.get("firstName")||"", fd.get("lastName")||"", fd.get("securityQuestion")||"", fd.get("securityAnswer")||"");
+  });
+
+  const forgotForm = root.querySelector('[data-act="auth-forgot"]');
+  if(forgotForm) forgotForm.addEventListener("submit",e=>{
+    e.preventDefault();
+    const fd = new FormData(forgotForm);
+    submitForgotPhone(fd.get("phone")||"");
+  });
+
+  const forgotQForm = root.querySelector('[data-act="auth-forgot-question"]');
+  if(forgotQForm) forgotQForm.addEventListener("submit",e=>{
+    e.preventDefault();
+    const fd = new FormData(forgotQForm);
+    submitSecurityAnswer(fd.get("answer")||"");
+  });
+
+  const resetForm = root.querySelector('[data-act="auth-reset"]');
+  if(resetForm) resetForm.addEventListener("submit",e=>{
+    e.preventDefault();
+    const fd = new FormData(resetForm);
+    submitResetPassword(fd.get("newPassword")||"", fd.get("confirmPassword")||"");
+  });
+
+  const accForm = root.querySelector('[data-act="save-account"]');
+  if(accForm) accForm.addEventListener("submit",e=>{
+    e.preventDefault();
+    const fd = new FormData(accForm);
+    saveAccount(fd.get("firstName")||"", fd.get("lastName")||"", fd.get("phone")||"", fd.get("password")||"", fd.get("securityQuestion")||"", fd.get("securityAnswer")||"", fd.get("currencyDisplay")||"");
+  });
+
+  const plForm = root.querySelector('[data-act="pl-add"]');
+  if(plForm) plForm.addEventListener("submit",e=>{
+    e.preventDefault();
+    const fd = new FormData(plForm);
+    State.plForm = { name:fd.get("name")||"", unit:fd.get("unit")||"", price:fd.get("price")||"", category:fd.get("category")||CATEGORIES[0] };
+    addPriceItem();
+  });
+
+  const contactForm = root.querySelector('[data-act="contact-submit"]');
+  if(contactForm) contactForm.addEventListener("submit",e=>{
+    e.preventDefault();
+    const fd = new FormData(contactForm);
+    submitContactMessage(fd.get("name")||"", fd.get("phone")||"", fd.get("message")||"");
+    contactForm.reset();
+  });
+}
+
+function bindLiveInput(selector, onInput){
+  const el = document.querySelector(selector);
+  if(!el) return;
+  el.addEventListener("input", ()=> onInput(el.value));
+}
+function refocus(selector){
+  const el = document.querySelector(selector);
+  if(el){ el.focus(); const v=el.value; el.value=""; el.value=v; }
+}
+
+/* ==================================================================
+   Boot
+   ================================================================== */
+(async function init(){
+  const data = await loadState();
+  if(data){
+    State.users = data.users||[];
+    State.priceList = data.priceList||[];
+    State.invoices = data.invoices||[];
+    State.contactMessages = data.contactMessages||[];
+  }
+
+  const publicInvoiceId = new URLSearchParams(window.location.search).get("invoice");
+  if(publicInvoiceId){
+    const inv = State.invoices.find(i=>i.id===publicInvoiceId);
+    State.publicInvoice = inv || null;
+    State.publicOwner = inv ? State.users.find(u=>u.id===inv.ownerId) : null;
+    State.view = "public-invoice";
+    render();
+    return;
+  }
+
+  if(!storageIsLive){
+    notify("اتصال به JSONBin.io برقرار نشد" + (lastSyncError ? ` (${lastSyncError})` : "") + " — لطفاً اتصال اینترنت و تنظیمات config.js را بررسی کنید.");
+  }
+  render();
+})();
+</script>
+</body>
+</html>
