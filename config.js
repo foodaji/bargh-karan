@@ -12,7 +12,7 @@ const JSONBIN_CONFIG = {
   binId: "6918475dd0ea881f40e9c02b",
 
   // یک Access Key (نه Master Key!) با دسترسی Read + Update روی این Bin
-  apiKey: "$2a$10$K0GxG/YDDvwcCOicoQSc3OIPqPpUflP5JvKxVStM6sdQYjq4LdXKi",
+  apiKey: "$2a$10$cz8BByqir9jDZ4AfVbfIP.KYa26rdZhTQ4D/v4vIQRhRYI.mMr5yK",
 
   // آدرس پایه‌ی API جسون‌بین — نیازی به تغییر ندارد
   baseUrl: "https://api.jsonbin.io/v3/b",
