@@ -154,7 +154,11 @@
   .item-row{ display:grid; grid-template-columns:1fr 140px 100px; align-items:center; gap:10px; background:var(--card); border:1.5px solid var(--border); border-radius:14px; padding:12px 14px; }
   .item-row.active{ border-color:var(--blue); background:var(--blue-soft); }
   .item-name{ font-weight:600; font-size:14px; }
-  .item-meta{ font-size:12px; color:var(--gray); }
+  .item-meta{ font-size:12px; color:var(--gray); display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-top:4px; }
+  .price-override-input{ width:92px; border:1.5px solid var(--border); border-radius:8px; padding:4px 6px; font-size:12px; color:var(--ink); background:#fff; }
+  .price-override-input:focus{ border-color:var(--blue); outline:none; }
+  .unit-label{ white-space:nowrap; }
+  .reset-price-btn{ background:var(--orange-soft); color:#C55A15; border:none; border-radius:8px; padding:3px 8px; font-size:11px; cursor:pointer; font-weight:700; }
   .qty-control{ display:flex; align-items:center; gap:4px; justify-content:center; }
   .qty-btn{ background:transparent; border:none; color:var(--blue); cursor:pointer; font-size:20px; line-height:1; padding:4px; }
   .qty-input{ width:48px; text-align:center; border:1.5px solid var(--border); border-radius:8px; padding:7px 2px; font-size:14px; }
@@ -678,7 +682,7 @@ async function removeContactMessage(id){
    Actions — invoices
    ================================================================== */
 function startNewInvoice(){
-  State.draft = { id:null, number:null, projectName:"", date:todayFa(), lines:{}, customItems:[], discountType:"amount", discountValue:0, useStamp: !!(State.session && State.session.stampImage) };
+  State.draft = { id:null, number:null, projectName:"", date:todayFa(), lines:{}, customItems:[], priceOverrides:{}, discountType:"amount", discountValue:0, useStamp: !!(State.session && State.session.stampImage) };
   State.niQuery=""; State.niCat="همه";
   State.customForm = {name:"",unit:"",price:"",qty:""};
   goto("new-invoice");
@@ -689,11 +693,12 @@ function editInvoice(invId){
   if(!inv) return;
   const lines = {};
   const customItems = [];
+  const priceOverrides = {};
   inv.items.forEach(it=>{
     if(it.type==="custom") customItems.push({id:it.id, name:it.name, unit:it.unit, price:it.price, qty:it.qty});
-    else lines[it.id]=it.qty;
+    else { lines[it.id]=it.qty; priceOverrides[it.id]=it.price; }
   });
-  State.draft = { id:inv.id, number:inv.number, projectName:inv.projectName, date:inv.date, lines, customItems,
+  State.draft = { id:inv.id, number:inv.number, projectName:inv.projectName, date:inv.date, lines, customItems, priceOverrides,
     discountType: inv.discountType||"amount", discountValue: inv.discountValue||0,
     useStamp: inv.showStamp !== undefined ? inv.showStamp : !!(State.session && State.session.stampImage) };
   State.niQuery=""; State.niCat="همه";
@@ -704,6 +709,17 @@ function editInvoice(invId){
 function setQty(itemId, qty){
   const q = Math.max(0, Math.floor(Number(qty)||0));
   State.draft.lines[itemId] = q;
+  render();
+}
+
+function setPriceOverride(itemId, price){
+  if(!State.draft.priceOverrides) State.draft.priceOverrides = {};
+  const p = Math.max(0, Number(price)||0);
+  State.draft.priceOverrides[itemId] = p;
+  render();
+}
+function resetPriceOverride(itemId){
+  if(State.draft.priceOverrides) delete State.draft.priceOverrides[itemId];
   render();
 }
 
@@ -725,8 +741,9 @@ function updateCustomItem(id, patch){
 
 function computeDraftTotals(){
   const d = State.draft;
+  const overrides = d.priceOverrides || {};
   const catalogItems = State.priceList.filter(p=>(d.lines[p.id]||0)>0)
-    .map(p=>({ id:p.id, type:"catalog", name:p.name, unit:p.unit, price:p.price, qty:d.lines[p.id] }));
+    .map(p=>({ id:p.id, type:"catalog", name:p.name, unit:p.unit, price: overrides[p.id]!==undefined ? Number(overrides[p.id]) : p.price, qty:d.lines[p.id] }));
   const customItems = d.customItems.filter(c=>(c.qty||0)>0)
     .map(c=>({ id:c.id, type:"custom", name:c.name, unit:c.unit, price:c.price, qty:c.qty }));
   const items = [...catalogItems, ...customItems];
@@ -1301,18 +1318,24 @@ function renderNewInvoice(){
         <div class="item-list">
           ${g.items.map(p=>{
             const qty = d.lines[p.id]||0;
+            const effectivePrice = (d.priceOverrides && d.priceOverrides[p.id]!==undefined) ? d.priceOverrides[p.id] : p.price;
+            const isOverridden = effectivePrice !== p.price;
             return `
             <div class="item-row ${qty>0?"active":""}">
               <div class="item-info">
                 <div class="item-name">${esc(p.name)}</div>
-                <div class="item-meta">${toman(p.price)} / ${esc(p.unit)}</div>
+                <div class="item-meta">
+                  <input class="price-override-input" type="number" min="0" value="${effectivePrice}" data-act="price-override" data-id="${p.id}" data-default="${p.price}" />
+                  <span class="unit-label">ریال / ${esc(p.unit)}</span>
+                  ${isOverridden ? `<button class="reset-price-btn" type="button" data-act="reset-price" data-id="${p.id}" title="بازگشت به قیمت نرخنامه (${toman(p.price)})">↺ بازنشانی</button>` : ""}
+                </div>
               </div>
               <div class="qty-control">
                 <button class="qty-btn" data-act="qty-dec" data-id="${p.id}">➖</button>
                 <input class="qty-input" type="number" min="0" value="${qty===0?"":qty}" placeholder="۰" data-act="qty-input" data-id="${p.id}" />
                 <button class="qty-btn" data-act="qty-inc" data-id="${p.id}">➕</button>
               </div>
-              <div class="item-line-total">${qty>0?toman(qty*p.price):"—"}</div>
+              <div class="item-line-total">${qty>0?toman(qty*effectivePrice):"—"}</div>
             </div>`;
           }).join("")}
         </div>
@@ -1335,7 +1358,7 @@ function renderNewInvoice(){
     <div class="ni-header">
       <div>
         <h1>${d.id?"ویرایش فاکتور":"صدور فاکتور جدید"}</h1>
-        <p class="muted">نام پروژه را وارد کنید و از نرخنامه، تعداد هر خدمت را مشخص کنید.</p>
+        <p class="muted">نام پروژه را وارد کنید، تعداد هر خدمت را مشخص کنید و در صورت نیاز قیمت هر آیتم را هم برای همین فاکتور تغییر دهید.</p>
       </div>
       <button class="btn btn-text" data-act="goto" data-view="${d.id?"invoices":"dashboard"}">✕ انصراف</button>
     </div>
@@ -1767,6 +1790,7 @@ function attachEvents(){
           case "toggle-sidebar": State.sidebarOpen=!State.sidebarOpen; render(); break;
           case "qty-inc": setQty(el.dataset.id, (State.draft.lines[el.dataset.id]||0)+1); break;
           case "qty-dec": setQty(el.dataset.id, (State.draft.lines[el.dataset.id]||0)-1); break;
+          case "reset-price": resetPriceOverride(el.dataset.id); break;
           case "custom-add": addCustomItem(); break;
           case "custom-remove": removeCustomItem(el.dataset.id); break;
           case "submit-draft": askConfirm("آیا از ثبت این فاکتور مطمئن هستید؟", submitDraft); break;
@@ -1848,6 +1872,13 @@ function attachEvents(){
 
   root.querySelectorAll('[data-act="qty-input"]').forEach(el=>{
     el.addEventListener("change",()=>setQty(el.dataset.id, el.value));
+  });
+
+  root.querySelectorAll('[data-act="price-override"]').forEach(el=>{
+    el.addEventListener("change",()=>{
+      if(el.value==="" || Number(el.value)===Number(el.dataset.default)) resetPriceOverride(el.dataset.id);
+      else setPriceOverride(el.dataset.id, el.value);
+    });
   });
 
   const credForm = root.querySelector('[data-act="auth-credentials"]');
