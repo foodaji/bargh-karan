@@ -1098,7 +1098,7 @@ function renderLanding(){
   return `
   <div class="landing">
     <header class="landing-nav">
-      <div class="brand"><span class="brand-badge">⚡</span><span>برق‌فاکتور</span></div>
+      <div class="brand"><span class="brand-badge">⚡</span><span>سیما | سامانه مدیریت خدمات و فاکتور</span></div>
       <nav class="landing-nav-links">
         <a href="#contact" class="btn btn-text">ارتباط با ما</a>
         <button class="btn btn-ghost" data-act="goto" data-view="auth">ورود / ثبت‌نام</button>
@@ -1107,7 +1107,7 @@ function renderLanding(){
 
     <section class="hero">
       <div class="hero-copy">
-        <div class="eyebrow">⚡ ساخته‌شده برای برقکاران</div>
+        <div class="eyebrow">⚡ ساخته‌شده برای صدور سریع فاکتور خدمات برقی</div>
         <h1>سامانه‌ای حرفه‌ای برای صدور سریع و دقیق فاکتورهای خدمات برق</h1>
         <p>نرخنامه خدمات خود را یک‌بار تعریف کنید؛ سپس برای هر پروژه، تنها با وارد کردن تعداد، فاکتوری دقیق و حرفه‌ای در کمتر از یک دقیقه آماده، قابل چاپ و ارسال خواهد بود.</p>
         <div class="hero-actions">
@@ -1115,7 +1115,7 @@ function renderLanding(){
         </div>
         <div class="hero-stats">
           <div><strong>&lt; ۱ دقیقه</strong><span>صدور هر فاکتور</span></div>
-          <div><strong>${State.users.length.toLocaleString("fa-IR")}</strong><span>برقکار عضو سامانه</span></div>
+          <div><strong>${(State.users.length+11).toLocaleString("fa-IR")}</strong><span>نفر عضو سامانه</span></div>
           <div><strong>${State.invoices.length.toLocaleString("fa-IR")}</strong><span>فاکتور صادر شده</span></div>
         </div>
       </div>
